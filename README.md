@@ -7,9 +7,9 @@ See the README in **./ref_files/** directory for more detailed description of ea
 
 * ```codings.csv:``` ```Data code mapping from the UK Biobank, matches numeric values to their textual meaning (e.g. 1=Yes).```  
 
-* **data-coding-ordinal-info.txt**: ```Ordering/recoding information for ordinal variables.``` 
+* ```data-coding-ordinal-info.txt:``` Ordering/recoding information for ordinal variables.
 
-* **outcome-info.tsv**: ```UKB metadata file from PHESANT. Has some unique fields not contained in showcase.csv.``` 
+* ```outcome-info.tsv:``` UKB metadata file from PHESANT. Has some unique fields not contained in showcase.csv. 
 
 
 
