@@ -3,9 +3,7 @@
 #### Reference Files
 See the README in **./ref_files/** directory for more detailed description of each file. 
 
-```
-**showcase.csv**: Primary UKB metadata file with lots of information (see ref_files README)
-```
+**showcase.csv**: ```Primary UKB metadata file with lots of information (see ref_files README)```
 
 **codings.csv**: Data code mapping from the UK Biobank, matches numeric values to their textual meaning (e.g. 1=Yes).  
 
