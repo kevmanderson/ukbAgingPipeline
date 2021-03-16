@@ -5,7 +5,7 @@ See the README in **./ref_files/** directory for more detailed description of ea
 
 * ```showcase.csv:``` Primary UKB metadata file with lots of information (see ref_files README)
 
-* ```codings.csv:``` ```Data code mapping from the UK Biobank, matches numeric values to their textual meaning (e.g. 1=Yes).```  
+* ```codings.csv:``` Data code mapping from the UK Biobank, matches numeric values to their textual meaning (e.g. 1=Yes).
 
 * ```data-coding-ordinal-info.txt:``` Ordering/recoding information for ordinal variables.
 
