@@ -3,7 +3,7 @@
 
 
 ### Set-up Your Configuration File
-'''bash
+'''json
 [
   {
     "base_dir": "/gpfs/milgram/project/holmes/kma52/buckner_aging",
