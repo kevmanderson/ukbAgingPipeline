@@ -7,7 +7,7 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', '-c', action='config', required=True)
+    parser.add_argument('--config', '-c', dest='config', required=True)
     opt = parser.parse_args()
     config_file = opt.config
 
