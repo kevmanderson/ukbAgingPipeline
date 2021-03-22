@@ -1,6 +1,21 @@
 # UK Biobank Processing Pipeline
 
-#### Reference Files
+
+
+### Set-up Your Configuration File
+'''bash
+[
+  {
+    "base_dir": "/gpfs/milgram/project/holmes/kma52/buckner_aging",
+    "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.enc_ukb",
+    "showcase_file": "/gpfs/milgram/project/holmes/kma52/buckner_aging/ref_files/showcase.csv",
+    "codings_file": "/gpfs/milgram/project/holmes/kma52/buckner_aging/ref_files/codings.csv",
+    "outcome_file": "/gpfs/milgram/project/holmes/kma52/buckner_aging/external/PHESANT/variable-info/outcome-info.tsv"
+  }
+]
+'''
+
+### Reference Files
 See the README in **./ref_files/** directory for more detailed description of each file. 
 
 '''bash
