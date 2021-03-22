@@ -3,7 +3,7 @@
 
 
 ### Set-up Your Configuration File
-'''json
+```json
 [
   {
     "base_dir": "/gpfs/milgram/project/holmes/kma52/buckner_aging",
@@ -13,7 +13,7 @@
     "outcome_file": "/gpfs/milgram/project/holmes/kma52/buckner_aging/external/PHESANT/variable-info/outcome-info.tsv"
   }
 ]
-'''
+```
 
 ### Reference Files
 See the README in **./ref_files/** directory for more detailed description of each file. 
