@@ -37,8 +37,11 @@ def main():
     # cd to data directory
     os.chdir(enc_dir)
 
-    # convert command
-    subprocess.call([ukb_conv_path, enc_name, 'r', '-otest{}'.format(enc_base), '-eencoding.ukb'])
+    # convert r command
+    subprocess.call([ukb_conv_path, enc_name, 'r', '-o{}'.format(enc_base), '-eencoding.ukb'])
+
+    # convert csv command (for PHESANT)
+    subprocess.call([ukb_conv_path, enc_name, 'csv', '-o{}'.format(enc_base), '-eencoding.ukb'])
 
 
 if __name__ == "__main__":

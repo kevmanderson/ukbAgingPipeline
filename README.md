@@ -15,6 +15,13 @@
 ]
 ```
 
+
+### Preparing UKB data
+
+We assume you've combined your data into a single omnibus data bucket, decrypted and stored wherever you plan to run your analyses (i.e. ```ukbXXXXX.enc_ukb```). Set the path to this file using the ```ukb_enc``` parameter in the config.json file. 
+
+We convert the data using the ```r``` styled output for input to the web browser SQL database. We also generate a ```csv``` formatted version of the data to allow for input to a modified version of  [PHESANT](https://github.com/MRCIEU/PHESANT). 
+
 ### Reference Files
 See the README in **./ref_files/** directory for more detailed description of each file. 
 
