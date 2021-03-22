@@ -24,6 +24,12 @@ Set the path to this file using the ```ukb_enc``` parameter in the config.json f
 
 We convert the data using the ```r``` styled output for input to the web browser SQL database. We also generate a ```csv``` formatted version of the data to allow for input to a modified version of  [PHESANT](https://github.com/MRCIEU/PHESANT). 
 
+```python
+# Create formatted UKB data using this command 
+# replace FULL_DIR_PATH with the correct path
+python 00_convert_ukbenc_data.py -c FULL_DIR_PATH/config.json
+```
+
 ### Reference Files
 See the README in **./ref_files/** directory for more detailed description of each file. 
 
