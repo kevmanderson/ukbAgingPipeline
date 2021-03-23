@@ -16,6 +16,7 @@
 ]
 ```
 
+---
 
 ### Step1: Prep UKB Data
 
@@ -30,6 +31,7 @@ We convert the data using the ```r``` styled output for input to the web browser
 python 00_convert_ukbenc_data.py -c FULL_DIR_PATH/config.json
 ```
 
+---
 
 ### Step 2: Prep UKB Metadata
 
@@ -60,9 +62,10 @@ Contents of ```ukbMetaData.csv```
 | Notes | String | Text based miscellaneous notes about the variable |
 | Link | String | URL link to the variable info page | 
 | phenoCategory | String | Most specific category for this variable. |
-| covarType | String | Which initial covariates to use in the regression. |
+| covarType | String | Which initial covariates to use in the regression. |  
 
-DateConvert
+
+---
 
 ### Reference Files
 See the README in **./ref_files/** directory for more detailed description of each file. 
