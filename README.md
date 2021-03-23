@@ -16,7 +16,7 @@
 ```
 
 
-### Preparing UKB data
+### Step1: Prep UKB Data
 
 We assume you've combined your data into a single omnibus data bucket, decrypted and stored wherever you plan to run your analyses (i.e. ```ukbXXXXX.enc_ukb```). 
 
@@ -28,6 +28,10 @@ We convert the data using the ```r``` styled output for input to the web browser
 # Create formatted UKB data using this command (replace FULL_DIR_PATH with your path)
 python 00_convert_ukbenc_data.py -c FULL_DIR_PATH/config.json
 ```
+
+
+### Step 2: Prep UKB Metadata
+
 
 ### Reference Files
 See the README in **./ref_files/** directory for more detailed description of each file. 
