@@ -33,15 +33,17 @@ python 00_convert_ukbenc_data.py -c FULL_DIR_PATH/config.json
 
 ### Step 2: Prep UKB Metadata
 
-The next step is to combine UKB variable information into a single metadata file. This combines info from UKB showcase and more curated fields from PHESANT. 
+The next step is to combine UKB variable information into a single metadata file (```ukbMetaData.csv```). This combines info from UKB showcase and more curated fields from PHESANT. 
 
 This step will also create the ```covariateTable.csv``` file used for regression confound presets. 
 
-| First Header  | Second Header |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
+Contents of ```ukbMetaData.csv```  
 
+| Column Name | Type | Description |  
+| ------------- | ------------- | ------------- |
+| FieldID  | Int | UK Biobank Field. Can be browsed through the [UKB Showcase](https://biobank.ndph.ox.ac.uk/showcase/browse.cgi) |
+| Category  | Int | Numeric ID for category. Each category contains some number of related UKB fields (e.g. 152=Process Durations, 100027=Fluid Int items) |
+| Path | String | UKB fields are organized into a hierarchy. This variables contains the full categorical ontology (e.g. "UK Biobank Assessment Centre > Procedural metrics > Process durations") |
 
 
 ### Reference Files
