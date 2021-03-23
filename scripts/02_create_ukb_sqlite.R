@@ -19,6 +19,7 @@ base_dir = config[[1]]$base_dir
 showcase_file = config[[1]]$showcase_file
 outcome_file  = config[[1]]$outcome_file
 codings_file  = config[[1]]$codings_file
+ordinal_file  = config[[1]]$ordinal_file
 
 
 # set up directories
