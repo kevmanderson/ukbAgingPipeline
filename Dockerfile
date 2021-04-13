@@ -29,6 +29,3 @@ RUN apt-get update && apt-get install -y software-properties-common && \
     apt-get clean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
-
-RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
-USER docker
