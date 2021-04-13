@@ -35,6 +35,9 @@ ukbMetaData$FieldID = as.character(ukbMetaData$FieldID)
 # previosuly created covariate table
 covariateTable = read.csv(paste0(out_dir, '/covariateTable.csv'))
 
+# ordinal data field information
+ordinalDF = read.csv(ordinal_file)
+
 # sql file to create
 sqlite3_file = paste0(out_dir, '/ukb_sqlite3.db')
 sqlite3_file = paste0(out_dir, '/ukb_sqlite3_100k.db')
@@ -64,13 +67,57 @@ close(fileConn)
 
 
 # read header info
-con    = file(tab_file, "r")
-header = as.character(read.table(con, header=F, nrows=1, sep="\t"))
+#con    = file(tab_file, "r")
+#header = as.character(read.table(tab_file, header=F, nrows=1, sep="\t"))
+
+h = read.table(tab_file, header=F, nrows=1, sep="\t")
+header = as.character(t(h))
 
 # create metadata df that matches columns of ukb df
 ukbFields  = unlist(lapply(header, function(x) strsplit(x,'[.]')[[1]][[2]]))
 ukbFieldDF = data.frame(FieldID=ukbFields, ColName=header)
 ukbFieldDF = merge(x=ukbFieldDF, y=ukbMetaData, by='FieldID')
+
+# clear out some fields we don't want to examine
+ukbFieldDF = ukbFieldDF[!grepl('YES-SUPERSEDED', ukbFieldDF$Excluded),]
+ukbFieldDF = ukbFieldDF[!grepl('YES-DATE', ukbFieldDF$Excluded),]
+ukbFieldDF = ukbFieldDF[!grepl('YES-POLYMORPHIC', ukbFieldDF$Excluded),]
+ukbFieldDF = ukbFieldDF[!grepl('YES-PROCESSING', ukbFieldDF$Excluded),]
+
+ukbFieldDF$visit = unlist(lapply(as.character(ukbFieldDF$ColName), function(x) strsplit(x,'[.]')[[1]][[3]]))
+ukbFieldDF$visit = as.numeric(ukbFieldDF$visit)
+
+# format multiple-categorical outcomes
+cat_mult_df = ukbFieldDF[which(ukbFieldDF$ValueType == 'Categorical multiple'),]
+mult_field_ids = as.character(unique(cat_mult_df$FieldID))
+for (field_id in mult_field_ids){
+  # unformatted ukb metadata
+  mult_fields = ukbFieldDF[which(ukbFieldDF$FieldID == field_id),]
+  # data coding info required for creatino of new ukb metadata entries
+  cur_codes   = codingsDF[codingsDF$Coding %in% mult_fields$DataCoding[1],]
+
+  # get rid of negative non answer
+  cur_codes$Value = as.numeric(as.character(cur_codes$Value))
+  cur_codes_nonan = cur_codes[cur_codes$Value > 0,]
+
+  # replace the "colname"" separately for each visit, since there are some visit-specific fields taht we want to retain.
+  uniq_visits = unique(mult_fields$visit)
+  for (vis in uniq_visits){
+    template_row  = mult_fields[which(mult_fields$visit == vis)[1],]
+    new_name_base = paste0('f.', field_id, '.', as.character(vis))
+    new_name_arr  = paste0(new_name_base, '#', as.character(cur_codes_nonan$Meaning))
+    new_field_df  = NULL
+    for (n in new_name_arr){
+      template_row$ColName = n
+      new_field_df = rbind(new_field_df, template_row)
+    }
+    # get rid of old rows
+    ukbFieldDF = ukbFieldDF[!grepl(field_id, ukbFieldDF$FieldID),]
+    # add new rows
+    ukbFieldDF = rbind(ukbFieldDF, new_field_df)
+  }
+}
+
 
 # fields that don't require recoding
 nonMultFields = which(is.na(ukbFieldDF$CatMultIndicatorFields))
@@ -158,71 +205,12 @@ for (pair in dtypePairs){
 dbWriteTable(conn, 'metadata', ukbFieldDF, overwrite = TRUE, append=FALSE)
 dbWriteTable(conn, 'codingsDF', ukbFieldDF, overwrite = TRUE, append=FALSE)
 dbWriteTable(conn, 'covariate_table', covariateTable, overwrite = TRUE, append=FALSE)
+dbWriteTable(conn, 'code_ordinal', ordinalDF, overwrite = TRUE, append=FALSE)
 
 dbDisconnect(conn)
-
 close(conn)
 close(con)
 
-
-
-
-
-
-
-
-# write data to different SQL tables
-dtypePairs = list(c('int','Integer'), c('real', 'Continuous'), c('str','Categorical single'), c('str','Categorical multiple'), c('Date', 'date'))
-pair = dtypePairs[[1]]
-for (pair in dtypePairs){
-  dtype   = pair[[2]]
-  sqlType = pair[[1]]
-
-  # find columns for this data type
-  dtype_idxs    = intersect(which(ukbFieldDF$ValueType == dtype), nonMultFields)
-  dtypeFieldIds = c('f.eid', ukbFieldDF$ColName[dtype_idxs])
-  dtype_df      = ukb_df[as.character(dtypeFieldIds)]
-
-  # melt data to long before writing to SQL
-  dtype_melted = reshape2::melt(dtype_df, id.vars=c('f.eid'), na.rm=T)
-  colnames(dtype_melted) = c('eid', 'variable', 'value')
-
-  # split column name into
-  dtype_melted$variable = as.character(dtype_melted$variable)
-  var_splits   = lapply(dtype_melted$variable, function(x) strsplit(x,'[.]')[[1]])
-  dtype_melted$field = unlist(lapply(var_splits, function(x) x[[2]]))
-  dtype_melted$time  = unlist(lapply(var_splits, function(x) x[[3]]))
-  dtype_melted$array = unlist(lapply(var_splits, function(x) x[[4]]))
-  dtype_melted$variable = gsub('[.]','_', gsub('f.', '', dtype_melted$variable))
-  #dtype_melted$variable = NULL
-
-  dbWriteTable(conn, sqlType, dtype_melted, append = TRUE)
-}
-
-
-dtype_melted = reshape2::melt(dtype_df, id.vars=c('f.eid'), na.rm=T)
-dtype_melted$variable = as.character(dtype_melted$variable)
-var_splits   = lapply(dtype_melted$variable, function(x) strsplit(x,'[.]')[[1]])
-dtype_melted$field = unlist(lapply(var_splits, function(x) x[[2]]))
-dtype_melted$time  = unlist(lapply(var_splits, function(x) x[[3]]))
-dtype_melted$array = unlist(lapply(var_splits, function(x) x[[4]]))
-dtype_melted$variable = NULL
-
-
-colnames(dtype_melted) = c('eid','variable','value')
-dbWriteTable(conn, 'int', dtype_melted, append = TRUE)
-
-# write metadata to sql
-conn = dbConnect(RSQLite::SQLite(), sqlite3_file)
-dbWriteTable(conn, 'metadata', ukbFieldDF, replace = FALSE)
-
-
-dbDisconnect(conn)
-
-
-
-library(data.table)
-long <- melt(setDT(wide), id.vars = c("Code","Country"), variable.name = "year")
 
 
 

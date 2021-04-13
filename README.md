@@ -18,14 +18,26 @@
 
 ---
 
-### Step1: Prep UKB Data
+```bash
+singularity pull --name simons_ukb_aging_pipeline2 docker://kevinanderson/simons-ukb-aging-pipeline
 
-We assume you've combined your data into a single omnibus data bucket, decrypted and stored wherever you plan to run your analyses (i.e. ```ukbXXXXX.enc_ukb```). 
+```
 
-Set the path to this file using the ```ukb_enc``` parameter in the config.json file. 
+---
 
-We convert the data using the ```r``` styled output for input to the web browser SQL database. We also generate a ```csv``` formatted version of the data to allow for input to a modified version of  [PHESANT](https://github.com/MRCIEU/PHESANT). 
+### Step 1: Prep UKB Raw Data
 
+We assume you've combined your data into a single omnibus data bucket, which has been decrypted using the ```ukbunpack``` tool and stored where you plan to run your analyses. This file will be appended with the the ```*.enc_ukb``` (i.e. ```ukbXXXXX.enc_ukb```), not the original ```.enc``` encrypted format. 
+
+Set the path to this file using the ```ukb_enc``` parameter in the ```config.json``` file.
+
+We convert the ```*.enc_ukb``` file to readable formats the [ukbconv](https://biobank.ndph.ox.ac.uk/showcase/download.cgi) utility. 
+
+Calling the script below will result in two outputs:   
+    1. ```r```: Primary format used for creating the SQL database.  
+    2. ```csv```: Required for running a modified version of [PHESANT](https://github.com/MRCIEU/PHESANT). 
+
+Execute the data preparation step with the following command:
 ```python
 # Create formatted UKB data using this command (replace FULL_DIR_PATH with your path)
 python 00_convert_ukbenc_data.py -c FULL_DIR_PATH/config.json
@@ -33,17 +45,50 @@ python 00_convert_ukbenc_data.py -c FULL_DIR_PATH/config.json
 
 ---
 
-### Step 2: Prep UKB Metadata
+### Step 2 (Optional): Download Bulk MRI Data
 
-The next step is to combine UKB variable information into a single metadata file (```ukbMetaData.csv```). This combines info from UKB showcase and more curated fields from PHESANT. 
+Some of the neuroimaging phenotypes are not available in the ```*.enc_ukb``` file. Mainly, these fields include resting-state "imaging derived phenotypes" (IDPs). We have to download and compile them separately. 
 
-This step will also create the ```covariateTable.csv``` file used for regression confound presets. 
+```bash
+# first, make a file of subjects with this bulk phenotype
+python 00b_download_bulk.py \
+         --config=FULL_DIR_PATH/config.json \
+         --bulk-name="rfmri_full_25" \
+         --bulk-id=25750 \
+         --make-bulk-files
+         # --slurm # use this option to submit download as SLURM job
 
-Contents of ```ukbMetaData.csv```  
+# second, actually download data
+python 00b_download_bulk.py \
+         --config=FULL_DIR_PATH/config.json \
+         --bulk-name="rfmri_full_25" \
+         --bulk-id=25750 \
+         --download-bulk-data
+         # --slurm # use this option to submit download as SLURM job
+```
+| Bulk Name | Bulk Field ID | Description | 
+| ------------- | ------------- | ------------- |
+| rfmri_full_25 | 25750 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25750) |
+| rfmri_full_100 | 25751 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25751) |
+| rfmri_part_25 | 25752 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25752) |
+| rfmri_part_100 | 25753 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25753) |
+| rfmri_rsfa_25 | 25754 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25754) |
+| rfmri_rsfa_100 | 25755 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25755) |
+
+
+---
+
+### Step 3: Prep UKB Metadata
+
+The next step is to combine UKB variable information into a single metadata file (```ukbMetaData.csv```). 
+
+We join data from the [UKB showcase](https://biobank.ctsu.ox.ac.uk/crystal/exinfo.cgi?src=accessing_data_guide) with some curated fields from [PHESANT](https://github.com/MRCIEU/PHESANT/tree/master/variable-info). 
+
+The final output of this step is the ```ukbMetaData.csv``` dataframe:
 
 | Column Name | Type | Description |  
 | ------------- | ------------- | ------------- |
-| FieldID  | Int | UK Biobank Field. Each variable has a unique numeric id. Can be browsed through the [UKB Showcase](https://biobank.ndph.ox.ac.uk/showcase/browse.cgi) |
+| FieldID  | Int | UK Biobank Field. Each variable has a unique numeric id that exactly matches the  [UKB Showcase](https://biobank.ndph.ox.ac.uk/showcase/browse.cgi) |
 | Category  | Int | Numeric ID for category. Each category contains some number of related UKB fields (e.g. 152=Process Durations, 100027=Fluid Int items) |
 | Path | String | UKB fields are organized into a hierarchy. This variables contains the full categorical ontology (e.g. "UK Biobank Assessment Centre > Procedural metrics > Process durations") |
 | Field | String | Text description of the UKB field. |
@@ -65,18 +110,23 @@ Contents of ```ukbMetaData.csv```
 | covarType | String | Which initial covariates to use in the regression. |  
 
 
+This step will also create the ```covariateTable.csv``` file used for preselecting confounders used in the regression. 
+
 ---
+
+
 
 ### Reference Files
 See the README in **./ref_files/** directory for more detailed description of each file. 
 
-* ```showcase.csv:``` Primary UKB metadata file with lots of information (see ref_files README)
+* ```showcase.csv:``` Primary UKB metadata file with lots of phenotype information (see ref_files README)
 
 * ```codings.csv:``` Data code mapping from the UK Biobank, matches numeric values to their textual meaning (e.g. 1=Yes).
 
 * ```data-coding-ordinal-info.txt:``` Ordering/recoding information for ordinal variables.
 
 * ```outcome-info.tsv:``` UKB metadata file from PHESANT. Has some unique fields not contained in showcase.csv. 
+
 
 
 

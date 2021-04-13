@@ -1,0 +1,26 @@
+[
+  {
+    "name": "rfmri_full_25",
+    "id": 25750
+  },
+  {
+    "name": "rfmri_full_100",
+    "id": 25751
+  },
+  {
+    "name": "rfmri_part_25",
+    "id": 25752
+  },
+  {
+    "name": "rfmri_part_100",
+    "id": 25753
+  },
+  {
+    "name": "rfmri_rsfa_25",
+    "id": 25754
+  },
+  {
+    "name": "rfmri_rsfa_100",
+    "id": 25755
+  }
+]
