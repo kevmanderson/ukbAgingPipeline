@@ -30,15 +30,3 @@ RUN apt-get update && apt-get install -y software-properties-common && \
     apt-get autoremove -y && \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
 
-
-# miniconda
-ENV PATH="/root/miniconda3/bin:${PATH}"
-ARG PATH="/root/miniconda3/bin:${PATH}"
-
-RUN wget \
-    https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh \
-    && mkdir /root/.conda \
-    && bash Miniconda3-py39_4.9.2-Linux-x86_64.sh -b \
-    && rm -f Miniconda3-py39_4.9.2-Linux-x86_64.sh
-
-ENV PATH /miniconda/bin:${PATH}
