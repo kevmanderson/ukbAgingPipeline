@@ -36,15 +36,16 @@ RUN sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bi
 
 
 ENV R_BASE_VERSION 3.6.3
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Now install R and littler, and create a link for littler in /usr/local/bin
 # Also set a default CRAN repo, and make sure littler knows about it too
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		r-base=${R_BASE_VERSION}* \
-                r-base-core=${R_BASE_VERSION}* \
-		r-base-dev=${R_BASE_VERSION}* \
-		r-recommended=${R_BASE_VERSION}*
+		r-base=${R_BASE_VERSION}*
+RUN apt-get install -y r-base-core=${R_BASE_VERSION}*
+RUN apt-get install -y r-base-dev=${R_BASE_VERSION}*
+
 
 # R
 RUN R -e "install.packages('jsonlite',dependencies=TRUE, repos='http://cran.rstudio.com/')"
@@ -74,7 +75,6 @@ RUN python3 -m pip install wget~=3.2
 RUN python3 -m pip install pybiomart==0.2.0
 RUN python3 -m pip install pysqlite3==0.4.6
 RUN python3 -m pip install argparse==1.1
-RUN python3 -m pip install json==2.0.9
 
 
 
@@ -89,9 +89,24 @@ ENV PATH /opt/plink:$PATH
 # plink 2.0
 RUN mkdir /opt/plink2 \
 && cd /opt/plink2 \
-&& wget wget http://s3.amazonaws.com/plink2-assets/plink2_linux_avx2_20210413.zip \
-&& unzip plink2_linux_avx2_20210413.zip
+&& wget http://s3.amazonaws.com/plink2-assets/alpha2/plink2_linux_avx2.zip \
+&& unzip plink2_linux_avx2.zip
 ENV PATH /opt/plink2:$PATH
+
+
+# UK Biobank utilities
+RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbmd5
+RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbconv
+RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbunpack
+RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbfetch
+
+
+RUN R -e "install.packages('jsonlite',dependencies=TRUE, repos='http://cran.rstudio.com/')"
+RUN R -e "install.packages('data.table',dependencies=TRUE, repos='http://cran.rstudio.com/')"
+RUN R -e "install.packages('tidyverse',dependencies=TRUE, repos='http://cran.rstudio.com/')"
+RUN R -e "install.packages('feather',dependencies=TRUE, repos='http://cran.rstudio.com/')"
+
+
 
 
 
