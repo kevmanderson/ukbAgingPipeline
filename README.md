@@ -19,8 +19,10 @@
 ---
 
 ```bash
-singularity pull --name simons_ukb_aging_pipeline2 docker://kevinanderson/simons-ukb-aging-pipeline
+singularity cache clean
+singularity pull --name simons_ukb_aging_pipeline docker://kevinanderson/simons-ukb-aging-pipeline
 
+# singularity shell simons_ukb_aging_pipeline
 ```
 
 ---
@@ -50,16 +52,16 @@ python 00_convert_ukbenc_data.py -c FULL_DIR_PATH/config.json
 Some of the neuroimaging phenotypes are not available in the ```*.enc_ukb``` file. Mainly, these fields include resting-state "imaging derived phenotypes" (IDPs). We have to download and compile them separately. 
 
 ```bash
-# first, make a file of subjects with this bulk phenotype
-python 00b_download_bulk.py \
+python3 00b_download_bulk.py \
          --config=FULL_DIR_PATH/config.json \
          --bulk-name="rfmri_full_25" \
          --bulk-id=25750 \
          --make-bulk-files
          # --slurm # use this option to submit download as SLURM job
 
+# Let the above command finish executing before running this step. 
 # second, actually download data
-python 00b_download_bulk.py \
+python3 00b_download_bulk.py \
          --config=FULL_DIR_PATH/config.json \
          --bulk-name="rfmri_full_25" \
          --bulk-id=25750 \
@@ -74,7 +76,6 @@ python 00b_download_bulk.py \
 | rfmri_part_100 | 25753 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25753) |
 | rfmri_rsfa_25 | 25754 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25754) |
 | rfmri_rsfa_100 | 25755 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25755) |
-
 
 ---
 

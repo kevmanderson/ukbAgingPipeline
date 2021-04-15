@@ -140,6 +140,3 @@ write.csv(meta_df, paste0(sql_dir, '/ukbMetaData.csv'), row.names=F, quote=T)
 
 
 
-
-
-

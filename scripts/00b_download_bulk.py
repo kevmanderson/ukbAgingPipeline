@@ -60,9 +60,9 @@ def main():
     parser.add_argument('--config', '-c', dest='config', required=True)
     parser.add_argument('--bulk-name', '-n', dest='bulk_name', required=True)
     parser.add_argument('--bulk-id', '-i', dest='bulk_id', required=True)
-    parser.add_argument('--make-bulk-files', dest='make_bulk_files', action='store_false', default=False)
-    parser.add_argument('--download-bulk-data', dest='download_bulk_data', action='store_false', default=False)
-    parser.add_argument('--slurm', '-e', dest='slurm', action='store_false', default=False)
+    parser.add_argument('--make-bulk-files', dest='make_bulk_files', action='store_true', default=False)
+    parser.add_argument('--download-bulk-data', dest='download_bulk_data', action='store_true', default=False)
+    parser.add_argument('--slurm', '-e', dest='slurm', action='store_true', default=False)
     opt = parser.parse_args()
 
     # read user configuration file
@@ -123,11 +123,11 @@ def main():
         conv_cmd = f'''cd {enc_dir}\n\n{ukb_conv_path} {enc_name} bulk -s{bulk_id} -o{bulk_id} -eencoding.ukb'''
 
         if slurm == True:
+            slurm_fetch = os.path.join(slurm_dir, 'fetch_{}'.format(bulk_id))
+            slurm_path  = writeSlurm(slurm_fetch, 'short', conv_cmd, bulk_id, stime='6:00:00', n_gpu=None, nthreads=2, mem='8G')
+            job_id      = submitSlurm(slurm_path)
             print('Command to create bulk file written to here: \n{}'.format(slurm_path))
             print('Submitting job to slurm cluster')
-            slurm_fetch = os.path.join(slurm_dir, 'fetch_{}'.format(bulk_id))
-            slurm_path  = writeSlurm(slurm_fetch, 'short', conv_cmd, key, stime='6:00:00', n_gpu=None, nthreads=2, mem=None)
-            job_id      = submitSlurm(slurm_path)
         else:
             # write script to file
             write_file = os.path.join(slurm_dir, 'fetch_{}.txt'.format(bulk_id))
@@ -162,7 +162,8 @@ def main():
 
             # write command to slurm file
             if slurm == True:
-                slurm_path = writeSlurm(slurm_fetch, 'short', fetch_cmd, key, stime='6:00:00', n_gpu=None, nthreads=2, mem=None)
+                slurm_fetch = os.path.join(slurm_dir, 'download_{}_{}'.format(start, bulk_id))
+                slurm_path = writeSlurm(slurm_fetch, 'short', fetch_cmd, str(start), stime='6:00:00', n_gpu=None, nthreads=2, mem='8G')
                 job_id = submitSlurm(slurm_path)
 
             else:

@@ -1,5 +1,6 @@
 [
   {
+    "repo_dir": "/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline",
     "base_dir": "/gpfs/milgram/project/holmes/kma52/buckner_aging",
     "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.enc_ukb",
     "showcase_file": "/gpfs/milgram/project/holmes/kma52/buckner_aging/ref_files/showcase.csv",
