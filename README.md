@@ -1,11 +1,21 @@
 # UK Biobank Processing Pipeline
 
+This repository processes UK Biobank data for integration within the Simons Brain Aging website.
+
+### What This Repo Does:
+
+1. Convert encoded UKB data into usable formats. 
+2. Download and compiles "Bulk" UKB data.
+3. Perform a modified PHESANT phenome-scan quantifying **AGE** effects. 
+4. Compile UK Biobank variable metadata.
+5. Dump all data into an SQL database. 
 
 
 ### Set-up Your Configuration File
 ```json
 [
   {
+    "repo_dir": "/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline",
     "base_dir": "/gpfs/milgram/project/holmes/kma52/buckner_aging",
     "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.enc_ukb",
     "showcase_file": "/gpfs/milgram/project/holmes/kma52/buckner_aging/ref_files/showcase.csv",
@@ -15,6 +25,14 @@
   }
 ]
 ```
+
+| Variable | Explanation |
+| ------------- | ------------- |
+| base_dir | Path to the primary project directory where results will be downloaded/written. The code will handle directory creation. This path is ideally empty, but its (probably) OK if not.  |
+| repo_dir | Top-level path to the this code repository (i.e. where ```git clone``` put all the code). Should be different than ```base_dir```.  |
+| ukb_enc | Full path to your raw + encoded UK Biobank data bucket, downloaded from the UKB AMS portal. Currently, the code only supports a single "omnibus" data bucket and doesn't combine fields that live in separate *enc_ukb* files. I suggest merging all your data into a single bucket using the UKB AMS tools...it will make your life easier in the long run anyways. | 
+| ukb_key | Full path to your UKB key, required for decrypting the encoded ukb data| 
+
 
 ---
 
