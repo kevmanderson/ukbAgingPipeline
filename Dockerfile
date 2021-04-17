@@ -109,6 +109,7 @@ RUN R -e "install.packages('feather',dependencies=TRUE, repos='http://cran.rstud
 
 # copy all the scripts into root dir within the container
 COPY scripts scripts/
+COPY ref_files ref_files/
 
 
 
