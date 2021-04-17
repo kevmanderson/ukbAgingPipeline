@@ -57,9 +57,26 @@ def main():
     os.chdir(enc_dir)
 
     # convert command
-    subprocess.call(['/app/ukbconv', enc_name, 'r', '-otest{}'.format(enc_base), '-eencoding.ukb'])
+    subprocess.call(['/app/ukbconv', enc_name, 'r', '-otest{}'.format(enc_base), '-e/ref_files/encoding.ukb'])
 
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
