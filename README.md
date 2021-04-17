@@ -13,7 +13,7 @@ This repository processes UK Biobank data for integration within the Simons Brai
 
 ### Installation 
 
-This code is meant to be run using Docker/Singularity. 
+This code is meant to be run using Docker or Singularity. 
 
 Feel free to clone this repository to modify/develop however you'd like. 
 
@@ -40,7 +40,7 @@ docker pull kevinanderson/simons-bulk-rnaseq-pipeline
   }
 ]
 ```
-
+  
 | Variable | Explanation |
 | ------------- | ------------- |
 | base_dir | Path to the primary project directory where results will be downloaded/written. The code will handle directory creation. This path is ideally empty, but its (probably) OK if not.  |
@@ -52,14 +52,20 @@ docker pull kevinanderson/simons-bulk-rnaseq-pipeline
 ---
 
 ### Step 1: Prepare Directories
-cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
+```bash
 singularity run simons_ukb_aging_pipeline \
   python3 scripts/00_create_dirs.py \
     --config=./config.json
-
+    
+singularity run simons_ukb_aging_pipeline \
+  python3 /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/00_create_dirs.py \
+    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json
+```
 ---
 
-### Step 1: Prep UKB Raw Data
+### Step 2: Prep UKB Raw Data
+
+Next, convert the ```ukb_enc``` file. 
 
 We assume you've combined your data into a single omnibus data bucket, which has been decrypted using the ```ukbunpack``` tool and stored where you plan to run your analyses. This file will be appended with the the ```*.enc_ukb``` (i.e. ```ukbXXXXX.enc_ukb```), not the original ```.enc``` encrypted format. 
 
@@ -72,6 +78,17 @@ Calling the script below will result in two outputs:
     2. ```csv```: Required for running a modified version of [PHESANT](https://github.com/MRCIEU/PHESANT). 
 
 Execute the data preparation step with the following command:
+
+```bash
+singularity run simons_ukb_aging_pipeline \
+  python3 scripts/00_create_dirs.py \
+    --config=./config.json
+    
+singularity run simons_ukb_aging_pipeline \
+  python3 /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/00_create_dirs.py \
+    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json
+```
+
 ```python
 # Create formatted UKB data using this command (replace FULL_DIR_PATH with your path)
 python 00_convert_ukbenc_data.py -c FULL_DIR_PATH/config.json

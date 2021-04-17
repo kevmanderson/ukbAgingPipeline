@@ -99,6 +99,8 @@ RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbmd5
 RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbconv
 RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbunpack
 RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbfetch
+RUN chmod 755 /app/*
+ENV PATH /app:$PATH
 
 
 RUN R -e "install.packages('jsonlite',dependencies=TRUE, repos='http://cran.rstudio.com/')"
