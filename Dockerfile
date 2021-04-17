@@ -53,15 +53,14 @@ RUN R -e "install.packages('jsonlite',dependencies=TRUE, repos='http://cran.rstu
 
 
 # miniconda
-ENV PATH="/root/miniconda3/bin:${PATH}"
-ARG PATH="/root/miniconda3/bin:${PATH}"
+ENV PATH="/opt/conda/bin:${PATH}"
+ARG PATH="/opt/conda/bin:${PATH}"
 
-RUN wget \
-    https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh \
-    && mkdir /root/.conda \
-    && bash Miniconda3-py39_4.9.2-Linux-x86_64.sh -b \
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh \
+    && bash Miniconda3-py39_4.9.2-Linux-x86_64.sh -b -p /opt/conda \
     && rm -f Miniconda3-py39_4.9.2-Linux-x86_64.sh
 
+RUN /opt/conda/bin/conda activate
 
 
 # Python modules
@@ -75,6 +74,7 @@ RUN python3 -m pip install wget~=3.2
 RUN python3 -m pip install pybiomart==0.2.0
 RUN python3 -m pip install pysqlite3==0.4.6
 RUN python3 -m pip install argparse==1.1
+RUN python3 -m pip install ipython
 
 
 

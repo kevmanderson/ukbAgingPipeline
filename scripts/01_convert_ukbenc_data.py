@@ -7,8 +7,14 @@ import subprocess
 import argparse
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', '-c', action='config', required=True)
+    example_text = '''example: 
+     python test.py -t template/test.py'''
+
+    parser = argparse.ArgumentParser(epilog=example_text, add_help=False, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--config', '-c', dest='config', required=True, help='Full path to the user configuration file')
+    parser.add_argument('--r_only', dest='r_only', default=False, required=False, action='store_true', help='Only convert data into the r-readable format')
+    parser.add_argument('--csv_only', dest='csv_only', default=False, required=False, action='store_true', help='Only convert data into csv format')
+    parser.add_argument('--help', '-h', action='help', default=argparse.SUPPRESS, help='This script will unpack and convert UK Biobank')
     opt = parser.parse_args()
     config_file = opt.config
 
@@ -21,6 +27,7 @@ def main():
     ukb_enc  = config_json['ukb_enc']
     ukb_key  = config_json['ukb_key']
     enc_name = config_json['ukb_enc'].split('/')[-1]
+    enc_base = enc_name.replace('.enc_ukb', '')
     key_name = config_json['ukb_key'].split('/')[-1]
 
     # path where to write all the data
@@ -39,9 +46,9 @@ def main():
         shutil.copyfile(ukb_key, dest_key)
 
     # directory where all the operations will take place
-    enc_dir  = '/'.join(ukb_enc.split('/')[:-1])
-    enc_name = ukb_enc.split('/')[-1]
-    enc_base = enc_name.split('.')[0]
+    #enc_dir  = '/'.join(ukb_enc.split('/')[:-1])
+    #enc_name = ukb_enc.split('/')[-1]
+    #enc_base = enc_name.split('.')[0]
 
     # check to see if the ukbconv utility is downloaded
     #ukb_conv_path = os.path.join(enc_dir, 'ukbconv')
@@ -57,7 +64,19 @@ def main():
     os.chdir(enc_dir)
 
     # convert command
-    subprocess.call(['/app/ukbconv', enc_name, 'r', '-otest{}'.format(enc_base), '-e/ref_files/encoding.ukb'])
+    print('Unpacking UKB Data')
+    os.chdir(raw_dir)
+    #subprocess.call(['./ukbunpack', './{}.enc'.format(enc_base), './{}'.format(key_name)])
+    subprocess.call(['/app/ukbunpack', './{}.enc'.format(enc_base), './{}'.format(key_name)])
+
+    # unpack data - r
+    subprocess.call(['./ukbconv', './{}.enc_ukb'.format(enc_base), 'r', '-ot{}'.format(enc_base), '-e{}'.format('./encoding.ukb')])
+    subprocess.call(['/app/ukbconv', './{}.enc_ukb'.format(enc_base), 'r', '-ot{}'.format(enc_base), '-e{}'.format('./encoding.ukb')])
+
+    # unpack data - csv
+    subprocess.call(['./ukbconv', './{}.enc_ukb'.format(enc_base), 'csv', '-ot{}'.format(enc_base), '-e{}'.format('./encoding.ukb')])
+    subprocess.call(['/app/ukbconv', './{}.enc_ukb'.format(enc_base), 'csv', '-ot{}'.format(enc_base), '-e{}'.format('./encoding.ukb')])
+
 
 
 if __name__ == "__main__":

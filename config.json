@@ -2,7 +2,7 @@
   {
     "repo_dir": "/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline",
     "base_dir": "/gpfs/milgram/project/holmes/kma52/buckner_aging",
-    "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.enc_ukb",
+    "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.enc",
     "ukb_key": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.key"
   }
 ]

@@ -35,7 +35,7 @@ docker pull kevinanderson/simons-bulk-rnaseq-pipeline
   {
     "repo_dir": "/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline",
     "base_dir": "/gpfs/milgram/project/holmes/kma52/buckner_aging",
-    "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.enc_ukb",
+    "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.enc",
     "ukb_key": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.key"
   }
 ]
@@ -51,7 +51,7 @@ docker pull kevinanderson/simons-bulk-rnaseq-pipeline
 
 ---
 
-### Step 1: Prepare Directories
+### Step 0: Prepare Directories
 ```bash
 singularity run simons_ukb_aging_pipeline \
   python3 scripts/00_create_dirs.py \
@@ -63,15 +63,17 @@ singularity run simons_ukb_aging_pipeline \
 ```
 ---
 
-### Step 2: Prep UKB Raw Data
+### Step 1: Prep UKB Raw Data
 
-Next, convert the ```ukb_enc``` file. 
+Next, decrypt the ```ukb_enc``` file and convert to the proper formats.
 
-We assume you've combined your data into a single omnibus data bucket, which has been decrypted using the ```ukbunpack``` tool and stored where you plan to run your analyses. This file will be appended with the the ```*.enc_ukb``` (i.e. ```ukbXXXXX.enc_ukb```), not the original ```.enc``` encrypted format. 
+We assume you've merged your data into a single omnibus data bucket (i.e. ```ukb*****.enc```). 
 
 Set the path to this file using the ```ukb_enc``` parameter in the ```config.json``` file.
 
-We convert the ```*.enc_ukb``` file to readable formats the [ukbconv](https://biobank.ndph.ox.ac.uk/showcase/download.cgi) utility. 
+We decrypt the ```*.enc``` file using the [ukbunpack](https://biobank.ndph.ox.ac.uk/showcase/download.cgi) utility. 
+
+We convert the ```*.enc_ukb``` file to readable formats using the [ukbconv](https://biobank.ndph.ox.ac.uk/showcase/download.cgi) utility. 
 
 Calling the script below will result in two outputs:   
     1. ```r```: Primary format used for creating the SQL database.  
@@ -81,24 +83,19 @@ Execute the data preparation step with the following command:
 
 ```bash
 singularity run simons_ukb_aging_pipeline \
-  python3 scripts/00_create_dirs.py \
+  python3 scripts/01_convert_ukbenc_data.py \
     --config=./config.json
     
 singularity run simons_ukb_aging_pipeline \
-  python3 /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/00_create_dirs.py \
+  python3 /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/01_convert_ukbenc_data.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json
-```
-
-```python
-# Create formatted UKB data using this command (replace FULL_DIR_PATH with your path)
-python 00_convert_ukbenc_data.py -c FULL_DIR_PATH/config.json
 ```
 
 ---
 
-### Step 2 (Optional): Download Bulk MRI Data
+### Step 1 (Optional): Download Bulk MRI Data
 
-Some of the neuroimaging phenotypes are not available in the ```*.enc_ukb``` file. Mainly, these fields include resting-state "imaging derived phenotypes" (IDPs). We have to download and compile them separately. 
+Some of the neuroimaging phenotypes are not available in the ```*.enc_ukb``` file. These fields include resting-state "imaging derived phenotypes" (IDPs). We have to download and compile them separately. 
 
 ```bash
 python3 00b_download_bulk.py \
