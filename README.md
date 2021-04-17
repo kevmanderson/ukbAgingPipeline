@@ -11,6 +11,24 @@ This repository processes UK Biobank data for integration within the Simons Brai
 5. Dump all data into an SQL database. 
 
 
+### Installation 
+
+This code is meant to be run using Docker/Singularity. 
+
+Feel free to clone this repository to modify/develop however you'd like. 
+
+#### Singularity
+```bash
+singularity cache clean
+singularity pull --name simons_ukb_aging_pipeline docker://kevinanderson/simons-ukb-aging-pipeline
+```
+
+#### Docker
+```bash
+docker pull kevinanderson/simons-bulk-rnaseq-pipeline
+```
+
+
 ### Set-up Your Configuration File
 ```json
 [
@@ -18,10 +36,7 @@ This repository processes UK Biobank data for integration within the Simons Brai
     "repo_dir": "/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline",
     "base_dir": "/gpfs/milgram/project/holmes/kma52/buckner_aging",
     "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.enc_ukb",
-    "showcase_file": "/gpfs/milgram/project/holmes/kma52/buckner_aging/ref_files/showcase.csv",
-    "codings_file": "/gpfs/milgram/project/holmes/kma52/buckner_aging/ref_files/codings.csv",
-    "outcome_file": "/gpfs/milgram/project/holmes/kma52/buckner_aging/external/PHESANT/variable-info/outcome-info.tsv",
-    "ordinal_file": "/gpfs/milgram/project/holmes/kma52/buckner_aging/external/PHESANT/variable-info/data-coding-ordinal-info.txt"
+    "ukb_key": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.key"
   }
 ]
 ```
@@ -36,12 +51,11 @@ This repository processes UK Biobank data for integration within the Simons Brai
 
 ---
 
-```bash
-singularity cache clean
-singularity pull --name simons_ukb_aging_pipeline docker://kevinanderson/simons-ukb-aging-pipeline
-
-# singularity shell simons_ukb_aging_pipeline
-```
+### Step 1: Prepare Directories
+cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
+singularity run simons_ukb_aging_pipeline \
+  python3 scripts/00_create_dirs.py \
+    --config=./config.json
 
 ---
 
