@@ -41,8 +41,6 @@ def main():
     is_funconn = opt.is_funconn
     is_rsfa = opt.is_rsfa
 
-
-
     with open(config_file, 'r') as f:
         config_json = json.load(f)[0]
 

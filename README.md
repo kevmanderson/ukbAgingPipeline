@@ -95,26 +95,13 @@ singularity run simons_ukb_aging_pipeline \
 
 ---
 
-### Step 1 (Optional): Download Bulk MRI Data
+### Step 1b (Optional): Download Bulk MRI Data
 
 Some of the neuroimaging phenotypes are not available in the ```*.enc_ukb``` file. These fields include resting-state "imaging derived phenotypes" (IDPs). We have to download and compile them separately. 
 
 ```bash
-python3 01b_download_bulk.py \
-         --config=FULL_DIR_PATH/config.json \
-         --bulk-field='rfmri_full_25:25750'  \
-         --bulk-field='rfmri_full_100:25751'  \
-         --bulk-field='rfmri_part_25:25752'  \
-         --bulk-field='rfmri_part_100:25753'  \
-         --bulk-field='rfmri_rsfa_25:25754'  \
-         --bulk-field='rfmri_rsfa_100:25755'  \
-         --make-bulk-list \
-         --slurm \
-         --slurm_partition='short' \
-         --singularity_container='/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/simons_ukb_aging_pipeline'
-
-python3 scripts/01b_download_bulk.py \
-         --config=./config.json \
+python3 ./scripts/01b_download_bulk.py \
+         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \
          --bulk-field='rfmri_full_25:25750'  \
          --bulk-field='rfmri_full_100:25751'  \
          --bulk-field='rfmri_part_25:25752'  \
@@ -134,6 +121,9 @@ python3 00b_download_bulk.py \
          --download-bulk-data
          # --slurm # use this option to submit download as SLURM job
 ```
+
+#### Neuroimaging Bulk Fields
+
 | Bulk Name | Bulk Field ID | Description | 
 | ------------- | ------------- | ------------- |
 | rfmri_full_25 | 25750 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25750) |
@@ -143,8 +133,17 @@ python3 00b_download_bulk.py \
 | rfmri_rsfa_25 | 25754 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25754) |
 | rfmri_rsfa_100 | 25755 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25755) |
 
-'rfmri_full_25:25750'
 ---
+
+### Step 1c (Optional): Compile Bulk MRI Data
+
+
+---
+
+### Step 2: Download Genetic Data
+
+---
+
 
 ### Step 3: Prep UKB Metadata
 
