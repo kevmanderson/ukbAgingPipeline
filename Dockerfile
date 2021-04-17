@@ -107,6 +107,8 @@ RUN R -e "install.packages('tidyverse',dependencies=TRUE, repos='http://cran.rst
 RUN R -e "install.packages('feather',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 
 
+# copy all the scripts into root dir within the container
+COPY scripts scripts/
 
 
 
