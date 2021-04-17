@@ -60,8 +60,9 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.
     && bash Miniconda3-py39_4.9.2-Linux-x86_64.sh -b -p /opt/conda \
     && rm -f Miniconda3-py39_4.9.2-Linux-x86_64.sh
 
+RUN /opt/conda/init bash
+RUN /bin/bash
 RUN /opt/conda/bin/conda activate
-
 
 # Python modules
 RUN python3 -m pip install --upgrade pip setuptools

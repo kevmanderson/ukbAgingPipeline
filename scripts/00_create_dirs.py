@@ -33,10 +33,20 @@ def main():
     if not os.path.exists(ukb_dir):
         os.mkdir(ukb_dir)
 
+    bulk_dir = os.path.join(ukb_dir, 'bulk')
+    print('Creating Bulk Directory: {}'.format(bulk_dir))
+    if not os.path.exists(bulk_dir):
+        os.mkdir(bulk_dir)
+
     raw_dir = os.path.join(ukb_dir, 'raw')
     print('Creating Raw Directory: {}'.format(raw_dir))
     if not os.path.exists(raw_dir):
         os.mkdir(raw_dir)
+
+    slurm_dir = os.path.join(base_dir, 'slurm')
+    print('Creating Slurm Directory: {}'.format(slurm_dir))
+    if not os.path.exists(slurm_dir):
+        os.mkdir(slurm_dir)
 
     gene_dir = os.path.join(data_dir, 'genetics')
     print('Creating Genetics Directory: {}'.format(gene_dir))

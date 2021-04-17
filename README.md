@@ -81,6 +81,8 @@ Calling the script below will result in two outputs:
 
 Execute the data preparation step with the following command:
 
+*N.B.* This will take a __30-90__ minutes...time for coffee.
+
 ```bash
 singularity run simons_ukb_aging_pipeline \
   python3 scripts/01_convert_ukbenc_data.py \

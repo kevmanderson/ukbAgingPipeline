@@ -2,10 +2,8 @@
 
 import os
 import subprocess
-import nibabel as nb
 import sys
-sys.path.append('/gpfs/milgram/project/holmes/kma52/buckner_aging/scripts/utilities')
-from utilities import *
+
 
 
 def submitSlurm(cmd, dependencies=None):
