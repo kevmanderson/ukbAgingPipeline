@@ -4,6 +4,7 @@ import os
 import json
 import subprocess
 import argparse
+impory glob
 
 def main():
     parser = argparse.ArgumentParser()
@@ -52,6 +53,15 @@ def main():
     print('Creating Genetics Directory: {}'.format(gene_dir))
     if not os.path.exists(gene_dir):
         os.mkdir(gene_dir)
+
+    external_dir = os.path.join(data_dir, 'external')
+    print('Creating External Directory: {}'.format(external_dir))
+    if not os.path.exists(external_dir):
+        os.mkdir(external_dir)
+    for filename in glob.glob(os.path.join('/opt/ukbtools', 'ukb*')):
+        shutil.copy(filename, external_dir)
+
+
 
 if __name__ == "__main__":
     main()

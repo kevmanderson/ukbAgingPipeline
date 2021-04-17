@@ -6,16 +6,16 @@ import subprocess
 import argparse
 import pandas as pd
 import sys
-sys.path.append('/scripts/utilities')
-from utilities import submitSlurm, writeSlurm
+import shutil
+#sys.path.append('/scripts/utilities')
 
 def submitSlurm(cmd, dependencies=None):
     if dependencies != None:
         # execute
-        p = subprocess.Popen(['sbatch', '--dependency=afterany:' + ':'.join(dependencies), cmd], stdout=subprocess.PIPE)
+        p = subprocess.Popen(['/usr/bin/sbatch', '--dependency=afterany:' + ':'.join(dependencies), cmd], stdout=subprocess.PIPE)
         out, err = p.communicate()
     else:
-        p = subprocess.Popen(['sbatch', cmd], stdout=subprocess.PIPE)
+        p = subprocess.Popen(['/usr/bin/sbatch', cmd], stdout=subprocess.PIPE)
         out, err = p.communicate()
     # get slurm job id to set up job submission dependency
     job_id = str(out).split(' ')[-1].replace("\\n'", '')
@@ -61,14 +61,18 @@ def main():
     example_text = '''example: 
      python test.py -t template/test.py'''
 
-    parser = argparse.ArgumentParser(epilog=example_text, add_help=False, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser()
     parser.add_argument('--config', '-c', dest='config', required=True)
-    parser.add_argument('--bulk-name', '-n', dest='bulk_name', required=True)
-    parser.add_argument('--bulk-id', '-i', dest='bulk_id', required=True)
+    parser.add_argument('--bulk-field', '-b', dest='bulk_field', action='append', nargs='+', required=True)
     parser.add_argument('--make-bulk-list', dest='make_bulk_list', action='store_true', default=False)
     parser.add_argument('--download-bulk-data', dest='download_bulk_data', action='store_true', default=False)
-    parser.add_argument('--slurm', '-e', dest='slurm', action='store_true', default=False)
+    parser.add_argument('--slurm', '-s', dest='slurm', action='store_true', default=False)
+    parser.add_argument('--slurm_partition', '-p', dest='slurm_partition', required=False, default=False)
+    parser.add_argument('--singularity_container', dest='singularity_container', required=False, default=False)
+
     opt = parser.parse_args()
+
+    print(opt.bulk_field)
 
     # read user configuration file
     tmp = False
@@ -76,32 +80,41 @@ def main():
         parser = argparse.ArgumentParser()
         opt = parser.parse_args()
         opt.config = '/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json'
+        opt.bulk_field = [['rfmri_full_25:25750'], ['rfmri_full_100:25751'], ['rfmri_part_25:25752'], ['rfmri_part_100:25753'], ['rfmri_rsfa_25:25754'], ['rfmri_rsfa_100:25755']]
         opt.make_bulk_list = True
         opt.download_bulk_data = True
-        opt.bulk_name = "rfmri_full_25"
-        opt.bulk_id = 25750
         opt.slurm = True
+        opt.slurm_partition = 'short'
+        opt.singularity_container = '/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/simons_ukb_aging_pipeline'
 
     # parse args
-    config_file = opt.config
-    slurm = opt.slurm
-    bulk_name = opt.bulk_name
-    bulk_id = opt.bulk_id
+    config_file     = opt.config
+    bulk_field      = opt.bulk_field
     download_bulk_data = opt.download_bulk_data
-    make_bulk_list = opt.make_bulk_list
+    make_bulk_list  = opt.make_bulk_list
+    slurm = opt.slurm
+    slurm_partition = opt.slurm_partition
+    singularity_container = opt.singularity_container
 
     if make_bulk_list == True and download_bulk_data == True:
-        raise Exception("User Error: '--download-bulk-data' and '--make-bulk-lists' both set to True. Only one may be set at a time. Run '--make-bulk-lists' first")
+        raise Exception("ERROR: '--download-bulk-data' and '--make-bulk-lists' both set to True. Only one may be set at a time. Run '--make-bulk-lists' first")
 
     # read config file
     with open(config_file, 'r') as f:
         config_json = json.load(f)[0]
+
+    if slurm == True:
+        sys.path.append(os.path.join(config_json['repo_dir'], 'scripts'))
+        sys.path.append(os.path.join(config_json['repo_dir'], 'scripts/utilities'))
+        from utilities import submitSlurm, writeSlurm
 
     # create folder to store the slurm commands
     slurm_dir = os.path.join(config_json['base_dir'], 'slurm')
     if not os.path.exists(slurm_dir):
         os.mkdir(slurm_dir)
 
+    # point to the correct directories
+    raw_dir  = os.path.join(config_json['base_dir'], 'data/ukb/raw')
     bulk_dir = os.path.join(config_json['base_dir'], 'data/ukb/bulk')
     if not os.path.exists(bulk_dir):
         os.mkdir(bulk_dir)
@@ -113,44 +126,67 @@ def main():
     elif ukb_enc[-8:] == '.enc_ukb':
         ukb_enc_file = ukb_enc
     else:
-        raise Exception("Config Error: 'ukb_enc' variable is mis-specified in the configuration file")
+        raise Exception("CONFIG ERROR: 'ukb_enc' variable is mis-specified in the configuration file")
+
+    if slurm == True and slurm_partition == False:
+        raise Exception("ERROR: Must specify slurm partition name")
 
     # directory where all the operations will take place
     enc_dir  = '/'.join(ukb_enc.split('/')[:-1])
     enc_name = ukb_enc.split('/')[-1]
     enc_base = enc_name.split('.')[0]
 
-    # check to see if the ukbconv utility is downloaded
-    ukb_conv_path  = os.path.join(enc_dir, 'ukbconv')
-    ukb_fetch_path = os.path.join(enc_dir, 'ukbfetch')
+    if make_bulk_list == True:
+        print('Creating Bulk Files for Download')
+        for download_field in bulk_field:
+            bulk_name = download_field[0].split(':')[0]
+            bulk_id   = download_field[0].split(':')[1]
+            os.chdir(enc_dir)
 
-    # dictionary of bulk fields to download
-    bulk_dict = pd.Series({'rfmri_full_25': 25750,
-                              'rfmri_full_100': 25751,
-                              'rfmri_part_25': 25752,
-                              'rfmri_part_100': 25753,
-                              'rfmri_rsfa_25': 25754,
-                              'rfmri_rsfa_100': 25755})
+            # where to write the data
+            bulk_out_dir = os.path.join(bulk_dir, bulk_name)
+            print('   Name:         {}'.format(bulk_name))
+            print('   Field ID:     {}'.format(bulk_id))
+            print('   Download Dir: {}'.format(bulk_out_dir))
+            if not os.path.exists(bulk_out_dir):
+                os.mkdir(bulk_out_dir)
 
-    if make_bulk_files == True:
-        # We first have to create the bulk download files from the *enc.ukb file
-        #for key in bulk_dict.keys():
-        #field       = bulk_dict[key]
+            if slurm == True:
+                print('....Submitting to Slurm....')
 
-        conv_cmd = f'''cd {enc_dir}\n\n{ukb_conv_path} {enc_name} bulk -s{bulk_id} -o{bulk_id} -eencoding.ukb'''
+                cmd = 'singularity run {} \\\n'.format(singularity_container)
+                cmd = f'''{cmd} python3 /scripts/\\\n'''.format(singularity_container)''
 
-        if slurm == True:
-            slurm_fetch = os.path.join(slurm_dir, 'fetch_{}'.format(bulk_id))
-            slurm_path  = writeSlurm(slurm_fetch, 'short', conv_cmd, bulk_id, stime='6:00:00', n_gpu=None, nthreads=2, mem='8G')
-            job_id      = submitSlurm(slurm_path)
-            print('Command to create bulk file written to here: \n{}'.format(slurm_path))
-            print('Submitting job to slurm cluster')
-        else:
+                singularity_container
+
+                # copy the ukbconv utility to the bulk download dir
+                shutil.copy('/app/ukbconv', os.path.join(bulk_out_dir, 'ukbconv'))
+
+                # symlink the ukb*enc_ukb file to bulk download dir
+                src_enc_ukb  = os.path.join(raw_dir, '{}.enc_ukb'.format(enc_base))
+                dest_enc_ukb = os.path.join(bulk_out_dir, '{}.enc_ukb'.format(enc_base))
+                if not os.path.exists(dest_enc_ukb):
+                    os.symlink(src_enc_ukb, dest_enc_ukb)
+
+                # build command for slurm submission
+                convert_cmd  = 'cd {}'.format(bulk_out_dir)
+                download_cmd = ['./ukbconv', './{}.enc_ukb'.format(enc_base), 'bulk', '-s{}'.format(bulk_id), '-o./{}'.format(bulk_id)]
+                submit_cmd   = '{}\n{}'.format(convert_cmd, ' '.join(download_cmd))
+
+                # write slurm command file and submit to cluster
+                slurm_file = os.path.join(slurm_dir, 'download_{}'.format(bulk_id))
+                slurm_path = writeSlurm(slurm_file=slurm_file, partition=slurm_partition, cmd=submit_cmd, jobName=bulk_name, stime='6:00:00', n_gpu=None, nthreads=2, mem='10G')
+                job_id     = submitSlurm(cmd=slurm_path)
+                print('   Slurm Command: {}'.format(slurm_path))
+                print('   Slurm Output:  {}'.format(slurm_path.replace('.txt','Out.txt')))
+                print('   Slurm Job ID:  {}'.format(job_id))
+                print('\n')
             # write script to file
-            write_file = os.path.join(slurm_dir, 'fetch_{}.txt'.format(bulk_id))
-            with open(write_file, 'w') as f:
-                f.write(conv_cmd)
-            print('Command to create bulk file written to here: \n{}'.format(write_file))
+            else:
+                write_file = os.path.join(slurm_dir, 'fetch_{}.txt'.format(bulk_id))
+                with open(write_file, 'w') as f:
+                    f.write(conv_cmd)
+                print('Command to create bulk file written to here: \n{}'.format(write_file))
 
     if download_bulk_data == True:
         # if the bulk fields have already been create, then you can start the bulk download fetching

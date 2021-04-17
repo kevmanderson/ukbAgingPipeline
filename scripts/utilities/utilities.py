@@ -54,19 +54,6 @@ def writeSlurm(slurm_file, partition, cmd, jobName, stime='6:00:00', n_gpu=None,
     return (slurm_name)
 
 
-def submitSlurm(cmd, dependencies=None):
-    if dependencies != None:
-        # execute
-        p = subprocess.Popen(['sbatch', '--dependency=afterany:' + ':'.join(dependencies), cmd], stdout=subprocess.PIPE)
-        out, err = p.communicate()
-    else:
-        p = subprocess.Popen(['sbatch', cmd], stdout=subprocess.PIPE)
-        out, err = p.communicate()
-    # get slurm job id to set up job submission dependency
-    job_id = str(out).split(' ')[-1].replace("\\n'", '')
-    return (job_id)
-
-
 def submitSlurmArrays(job_array, jobs_in_batch, slurm_base, ncpus, partition, jobName, stime='6:00:00', mem=None):
     batch_list = list(chunks(job_array, jobs_in_batch))
     # write chunked batch list

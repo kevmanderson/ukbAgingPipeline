@@ -8,18 +8,20 @@ import pandas as pd
 import glob
 import numpy as np
 from functools import reduce
+import sys
+sys.path.append('/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts')
+sys.path.append('/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/utilities')
+from utilities import submitSlurm, writeSlurm
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', '-c', dest='config', required=True)
-    parser.add_argument('--bulk-id', '-i', dest='bulk_id', required=True)
+    parser.add_argument('--bulk-field', '-b', dest='bulk_field', action='append', nargs='+' required=True)
     parser.add_argument('--slurm', '-e', dest='slurm', action='store_true', default=False)
-    parser.add_argument('--num_components', '-e', dest='num_components', required=True)
-    parser.add_argument('--is_rsfa', '-e', dest='is_rsfa', action='store_true', default=False)
-    parser.add_argument('--is_funconn', '-e', dest='is_funconn', action='store_true', default=False)
-
     opt = parser.parse_args()
-    
+
+    print(opt.bulk_field)
+
     # read user configuration file
     tmp = False
     if tmp == True:
@@ -33,16 +35,19 @@ def main():
         opt.slurm = True
 
     config_file = opt.config
-    bulk_id = opt.bulk_id
-    slurm   = opt.slurm
+    bulk_id     = opt.bulk_id
+    slurm       = opt.slurm
     num_components = opt.num_components
     is_funconn = opt.is_funconn
     is_rsfa = opt.is_rsfa
 
+
+
     with open(config_file, 'r') as f:
         config_json = json.load(f)[0]
 
-    component_path = os.path.join(config_json['repo_dir'], 'ref_files', 'rfMRI_GoodComponents_d{}_v1.txt'.format(num_components))
+
+    component_path = '/ref_files/rfMRI_GoodComponents_d{}_v1.txt'.format(num_components)
     component_in   = pd.read_csv(component_path, delim_whitespace=True, header=None)
     component_map  = {i: x for i, x in enumerate(component_in.transpose()[0])}
 

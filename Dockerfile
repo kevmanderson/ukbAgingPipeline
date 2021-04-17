@@ -2,7 +2,6 @@
 FROM ubuntu:18.04
 MAINTAINER Kevin M Anderson "kevinanderson@fas.harvard.edu"
 
-WORKDIR /app
 
 RUN apt-get update && apt-get install -y software-properties-common && \
     apt-get update && apt-get install -y \
@@ -50,8 +49,6 @@ RUN apt-get install -y r-base-dev=${R_BASE_VERSION}*
 # R
 RUN R -e "install.packages('jsonlite',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 
-
-
 # miniconda
 ENV PATH="/opt/conda/bin:${PATH}"
 ARG PATH="/opt/conda/bin:${PATH}"
@@ -60,9 +57,14 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.
     && bash Miniconda3-py39_4.9.2-Linux-x86_64.sh -b -p /opt/conda \
     && rm -f Miniconda3-py39_4.9.2-Linux-x86_64.sh
 
-RUN /opt/conda/init bash
-RUN /bin/bash
-RUN /opt/conda/bin/conda activate
+
+ENV PATH="/opt/conda/bin:${PATH}"
+ARG PATH="/opt/conda/bin:${PATH}"
+
+RUN conda --version
+
+RUN conda init bash
+RUN bash
 
 # Python modules
 RUN python3 -m pip install --upgrade pip setuptools
@@ -96,12 +98,13 @@ ENV PATH /opt/plink2:$PATH
 
 
 # UK Biobank utilities
+RUN mkdir /ukbtools
+RUN cd /ukbtools
 RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbmd5
 RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbconv
 RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbunpack
 RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbfetch
-RUN chmod 755 /app/*
-ENV PATH /app:$PATH
+ENV PATH /ukbtools:$PATH
 
 
 RUN R -e "install.packages('jsonlite',dependencies=TRUE, repos='http://cran.rstudio.com/')"
@@ -109,10 +112,10 @@ RUN R -e "install.packages('data.table',dependencies=TRUE, repos='http://cran.rs
 RUN R -e "install.packages('tidyverse',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages('feather',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 
-
 # copy all the scripts into root dir within the container
-COPY scripts /scripts/
-COPY ref_files /ref_files/
+COPY scripts scripts/
+COPY ref_files ref_files/
+
 
 
 

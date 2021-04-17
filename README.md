@@ -13,7 +13,7 @@ This repository processes UK Biobank data for integration within the Simons Brai
 
 ### Installation 
 
-This code is meant to be run using Docker or Singularity. 
+This majority of this code is meant to be run using Docker or Singularity. 
 
 Feel free to clone this repository to modify/develop however you'd like. 
 
@@ -100,13 +100,31 @@ singularity run simons_ukb_aging_pipeline \
 Some of the neuroimaging phenotypes are not available in the ```*.enc_ukb``` file. These fields include resting-state "imaging derived phenotypes" (IDPs). We have to download and compile them separately. 
 
 ```bash
-python3 00b_download_bulk.py \
+python3 01b_download_bulk.py \
          --config=FULL_DIR_PATH/config.json \
-         --bulk-name="rfmri_full_25" \
-         --bulk-id=25750 \
-         --make-bulk-files
-         # --slurm # use this option to submit download as SLURM job
+         --bulk-field='rfmri_full_25:25750'  \
+         --bulk-field='rfmri_full_100:25751'  \
+         --bulk-field='rfmri_part_25:25752'  \
+         --bulk-field='rfmri_part_100:25753'  \
+         --bulk-field='rfmri_rsfa_25:25754'  \
+         --bulk-field='rfmri_rsfa_100:25755'  \
+         --make-bulk-list \
+         --slurm \
+         --slurm_partition='short' \
+         --singularity_container='/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/simons_ukb_aging_pipeline'
 
+python3 scripts/01b_download_bulk.py \
+         --config=./config.json \
+         --bulk-field='rfmri_full_25:25750'  \
+         --bulk-field='rfmri_full_100:25751'  \
+         --bulk-field='rfmri_part_25:25752'  \
+         --bulk-field='rfmri_part_100:25753'  \
+         --bulk-field='rfmri_rsfa_25:25754'  \
+         --bulk-field='rfmri_rsfa_100:25755'  \
+         --make-bulk-list \
+         --slurm \
+         --slurm_partition='short'
+         
 # Let the above command finish executing before running this step. 
 # second, actually download data
 python3 00b_download_bulk.py \
@@ -125,6 +143,7 @@ python3 00b_download_bulk.py \
 | rfmri_rsfa_25 | 25754 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25754) |
 | rfmri_rsfa_100 | 25755 | [Jump to Showcase](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=25755) |
 
+'rfmri_full_25:25750'
 ---
 
 ### Step 3: Prep UKB Metadata
