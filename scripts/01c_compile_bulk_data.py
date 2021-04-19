@@ -9,18 +9,23 @@ import glob
 import numpy as np
 from functools import reduce
 import sys
-sys.path.append('/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts')
-sys.path.append('/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/utilities')
-from utilities import submitSlurm, writeSlurm
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', '-c', dest='config', required=True)
     parser.add_argument('--bulk-field', '-b', dest='bulk_field', action='append', nargs='+' required=True)
-    parser.add_argument('--slurm', '-e', dest='slurm', action='store_true', default=False)
     opt = parser.parse_args()
 
     print(opt.bulk_field)
+
+    mri_info_dict = {
+        '25750': {'type': 'funcconn', 'components': 25},
+        '25751': {'type': 'funcconn', 'components': 100},
+        '25752': {'type': 'funcconn', 'components': 25},
+        '25753': {'type': 'funcconn', 'components': 100},
+        '25754': {'type': 'rsfa', 'components': 25},
+        '25755': {'type': 'rsfa', 'components': 100}
+    }
 
     # read user configuration file
     tmp = False
@@ -28,30 +33,64 @@ def main():
         parser = argparse.ArgumentParser()
         opt = parser.parse_args()
         opt.config = '/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json'
-        opt.bulk_id = 25755
-        opt.num_components = 100
-        opt.is_rsfa = True
-        opt.is_funconn = False
-        opt.slurm = True
+        opt.bulk_field = [['rfmri_full_25:25750'], ['rfmri_full_100:25751'], ['rfmri_part_25:25752'], ['rfmri_part_100:25753'], ['rfmri_rsfa_25:25754'], ['rfmri_rsfa_100:25755']]
 
     config_file = opt.config
-    bulk_id     = opt.bulk_id
-    slurm       = opt.slurm
-    num_components = opt.num_components
-    is_funconn = opt.is_funconn
-    is_rsfa = opt.is_rsfa
-
+    bulk_field  = opt.bulk_field
     with open(config_file, 'r') as f:
         config_json = json.load(f)[0]
 
+    # dir where all the bulk data should have been written
+    bulk_dir = os.path.join(config_json['base_dir'], 'data/ukb/bulk')
 
-    component_path = '/ref_files/rfMRI_GoodComponents_d{}_v1.txt'.format(num_components)
-    component_in   = pd.read_csv(component_path, delim_whitespace=True, header=None)
-    component_map  = {i: x for i, x in enumerate(component_in.transpose()[0])}
+    for field in bulk_field:
+        data_list = []
 
-    # directory where all the operations will take place
-    ukb_enc = config_json['ukb_enc']
-    enc_dir = '/'.join(ukb_enc.split('/')[:-1])
+        print(field)
+        bulk_name = field[0].split(':')[0]
+        bulk_id   = field[0].split(':')[1]
+        cur_bulk_dir = os.path.join(bulk_dir, bulk_name)
+        bulk_files   = glob.glob(os.path.join(cur_bulk_dir, '*{}*.txt'.format(bulk_id)))
+
+        if mri_info_dict[bulk_id]['type'] == 'rsfa':
+            num_components = mri_info_dict[bulk_id]['components']
+            component_path = '/ref_files/rfMRI_GoodComponents_d{}_v1.txt'.format(num_components)
+            component_in   = pd.read_csv(component_path, delim_whitespace=True, header=None)
+            component_map  = {i: x for i, x in enumerate(component_in.transpose()[0])}
+
+        if mri_info_dict[bulk_id]['type'] == 'funcconn':
+
+            # read the mapping between parcel indices and parcel numbers (confusing)
+            num_components = mri_info_dict[bulk_id]['components']
+            component_path = '/ref_files/rfMRI_GoodComponents_d{}_v1.txt'.format(num_components)
+            component_in   = np.loadtxt(component_path)  # pd.read_csv(component_path, delim_whitespace=True, header=None)
+            component_in   = component_in.astype(int)
+            parcel_arr     = ['parcel_{}'.format(int(i)) for i in component_in]
+            component_map  = {i: x for i, x in enumerate(component_in)}
+
+            sub_bulk_file = bulk_files[0]
+            for sub_bulk_file in bulk_files:
+                id = sub_bulk_file.split('/')[-1].split('_')[0]
+
+                empty_matrix = np.zeros((len(component_in), len(component_in)))
+                idxs   = np.triu_indices(len(component_in), k=1)
+                dat_in = np.loadtxt(sub_bulk_file)
+                bulk_name = bulk_name.replace('rfmri_', 'rest_funccon_')
+
+                edge_list = ['{}_p{}_p{}'.format(bulk_id, component_in[x], component_in[y]) for x, y in
+                             zip(idxs[0], idxs[1])]
+                subj_data = pd.DataFrame(dat_in).transpose()
+                subj_data.columns = edge_list
+
+                subj_data.insert(0, 'id', id)
+                data_list.append(subj_data)
+
+        field_df = pd.concat(data_list)
+        out_file = os.path.join(cur_bulk_dir, '{}_dataframe.csv'.format(bulk_id))
+        field_df.to_csv(out_file, index=None)
+        print(len(bulk_files))
+
+
 
     # create directory for all the output bulk files
     bulk_dir   = os.path.join(enc_dir, 'bulk_{}'.format(bulk_id))

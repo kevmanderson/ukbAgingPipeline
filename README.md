@@ -114,6 +114,18 @@ python3 ./scripts/01b_download_bulk.py \
          
 # Let the above command finish executing before running this step. 
 # second, actually download data
+python3 ./scripts/01b_download_bulk.py \
+         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \
+         --bulk-field='rfmri_full_25:25750'  \
+         --bulk-field='rfmri_full_100:25751'  \
+         --bulk-field='rfmri_part_25:25752'  \
+         --bulk-field='rfmri_part_100:25753'  \
+         --bulk-field='rfmri_rsfa_25:25754'  \
+         --bulk-field='rfmri_rsfa_100:25755'  \
+         --download-bulk-data \
+         --slurm \
+         --slurm_partition='short'
+         
 python3 00b_download_bulk.py \
          --config=FULL_DIR_PATH/config.json \
          --bulk-name="rfmri_full_25" \
@@ -137,6 +149,18 @@ python3 00b_download_bulk.py \
 
 ### Step 1c (Optional): Compile Bulk MRI Data
 
+Once bulk MRI data have been downloaded, read and compile them into dataframes.
+
+```bash
+python3 ./scripts/01c_compile_bulk_data.py \
+         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \
+         --bulk-field='rfmri_full_25:25750'  \
+         --bulk-field='rfmri_full_100:25751'  \
+         --bulk-field='rfmri_part_25:25752'  \
+         --bulk-field='rfmri_part_100:25753'  \
+         --bulk-field='rfmri_rsfa_25:25754'  \
+         --bulk-field='rfmri_rsfa_100:25755'
+```
 
 ---
 
@@ -181,7 +205,41 @@ This step will also create the ```covariateTable.csv``` file used for preselecti
 
 ---
 
+### Step 4: Create UKB SQLite file
 
+---
+
+### Step 5: Genetic Preprocessing
+
+```bash
+# Option 1: run the command locally on each chromosome
+for chrom in {1..22};
+do
+    echo $chrom
+    python3 ./scripts/05_ukb_genetic_pipe.py \
+             --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \
+             --chrom=${chrom} \
+             --info=0.06 \
+             --filter_bgen
+done
+    
+    
+    
+    parser = argparse.ArgumentParser(epilog=example_text, add_help=False, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--config', '-c', dest='config', required=True, help='Full path to the user configuration file')
+    parser.add_argument('--chrom', dest='maf', default=0.01, required=False, help='Minor Allele Frequency')
+    parser.add_argument('--maf', dest='maf', default=0.01, required=False, help='Minor Allele Frequency')
+    parser.add_argument('--hwe', dest='hwe', default=1e-6, required=False, help='Hardy-Weinberg Equilibrium')
+    parser.add_argument('--mind', dest='mind', default=0.02, required=False, help='Genotype Missingness')
+    parser.add_argument('--geno', dest='geno', default=0.02, required=False, help='SNP Missingness')
+    parser.add_argument('--info', dest='info', default=0.60, required=False, help='SNP Missingness')
+    parser.add_argument('--european', dest='info', default=0.60, required=False, help='SNP Missingness')
+    parser.add_argument('--help', '-h', action='help', default=argparse.SUPPRESS, help='This script will unpack and convert UK Biobank')
+    opt = parser.parse_args()
+    
+```
+
+---
 
 ### Reference Files
 See the README in **./ref_files/** directory for more detailed description of each file. 
