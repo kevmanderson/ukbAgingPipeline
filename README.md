@@ -60,6 +60,12 @@ singularity run simons_ukb_aging_pipeline \
   python3 scripts/00_create_dirs.py \
     --config=./config.json
     
+#harvard 
+singularity run simons_ukb_aging_pipeline \
+  python3 /ncf/sba01/ukbAgingPipeline/scripts/00_create_dirs.py \
+    --config=/ncf/sba01/ukbAgingPipeline/config.json
+    
+#yale    
 singularity run simons_ukb_aging_pipeline \
   python3 /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/00_create_dirs.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json
@@ -90,7 +96,13 @@ Execute the data preparation step with the following command:
 singularity run simons_ukb_aging_pipeline \
   python3 scripts/01_convert_ukbenc_data.py \
     --config=./config.json
+
+# harvard 
+singularity run simons_ukb_aging_pipeline \
+  python3 /ncf/sba01/ukbAgingPipeline/scripts/01_convert_ukbenc_data.py \
+    --config=/ncf/sba01/ukbAgingPipeline/config.json
     
+# yale    
 singularity run simons_ukb_aging_pipeline \
   python3 /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/01_convert_ukbenc_data.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json

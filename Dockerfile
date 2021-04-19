@@ -2,7 +2,6 @@
 FROM ubuntu:18.04
 MAINTAINER Kevin M Anderson "kevinanderson@fas.harvard.edu"
 
-
 RUN apt-get update && apt-get install -y software-properties-common && \
     apt-get update && apt-get install -y \
         sudo \
@@ -99,13 +98,15 @@ ENV PATH /opt/plink2:$PATH
 
 # UK Biobank utilities
 RUN mkdir /ukbtools
+WORKDIR /ukbtools
 RUN cd /ukbtools
 RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbmd5
 RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbconv
 RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbunpack
 RUN wget -nd biobank.ndph.ox.ac.uk/showcase/util/ukbfetch
 ENV PATH /ukbtools:$PATH
-
+RUN chmod 755 /ukbtools/*
+WORKDIR /
 
 RUN R -e "install.packages('jsonlite',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages('data.table',dependencies=TRUE, repos='http://cran.rstudio.com/')"
