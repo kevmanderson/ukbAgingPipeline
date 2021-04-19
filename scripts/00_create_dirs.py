@@ -49,10 +49,20 @@ def main():
     if not os.path.exists(slurm_dir):
         os.mkdir(slurm_dir)
 
-    gene_dir = os.path.join(data_dir, 'genetics')
+    gene_dir = os.path.join(ukb_dir, 'genotypes')
     print('Creating Genetics Directory: {}'.format(gene_dir))
     if not os.path.exists(gene_dir):
         os.mkdir(gene_dir)
+
+    genotyped_dir = os.path.join(gene_dir, 'genotyped')
+    print('Creating Genetics Directory: {}'.format(genotyped_dir))
+    if not os.path.exists(genotyped_dir):
+        os.mkdir(genotyped_dir)
+
+    imputed_dir = os.path.join(gene_dir, 'imputed')
+    print('Creating Genetics Directory: {}'.format(imputed_dir))
+    if not os.path.exists(imputed_dir):
+        os.mkdir(imputed_dir)
 
     external_dir = os.path.join(data_dir, 'external')
     print('Creating External Directory: {}'.format(external_dir))

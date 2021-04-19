@@ -115,6 +115,52 @@ singularity run simons_ukb_aging_pipeline \
 Some of the neuroimaging phenotypes are not available in the ```*.enc_ukb``` file. These fields include resting-state "imaging derived phenotypes" (IDPs). We have to download and compile them separately. 
 
 ```bash
+# harvard
+python3 ./scripts/01b_download_bulk.py \
+         --config=/ncf/sba01/ukbAgingPipeline/config.json \
+         --bulk-field='rfmri_full_25:25750'  \
+         --bulk-field='rfmri_full_100:25751'  \
+         --bulk-field='rfmri_part_25:25752'  \
+         --bulk-field='rfmri_part_100:25753'  \
+         --bulk-field='rfmri_rsfa_25:25754'  \
+         --bulk-field='rfmri_rsfa_100:25755'  \
+         --make-bulk-list \
+         --slurm \
+         --slurm_partition='short'
+
+# harvard
+python3 ./scripts/01b_download_bulk.py \
+         --config=/ncf/sba01/ukbAgingPipeline/config.json \
+         --bulk-field='mri_rest_dicom:20225'  \
+         --bulk-field='mri_rest_nii:20227'  \
+         --bulk-field='mri_t1_nii:20252'  \
+         --bulk-field='mri_t2_nii:20253'  \
+         --bulk-field='mri_swi_nii:20251'  \
+         --bulk-field='mri_swi_dicom:20219'  \
+         --bulk-field='mri_dmri_dicom:20218'  \
+         --bulk-field='mri_dmri_nii:20250'  \
+         --make-bulk-list \
+         --slurm \
+         --slurm_partition='ncf'
+         
+# harvard      
+python3 ./scripts/01b_download_bulk.py \
+         --config=/ncf/sba01/ukbAgingPipeline/config.json \
+         --bulk-field='actigraphy_cwa:90001'  \
+         --bulk-field='actigraphy_timeseries:90004' \
+         --make-bulk-list \
+         --slurm \
+         --slurm_partition='ncf'
+
+# second, actually download data
+python3 ./scripts/01b_download_bulk.py \
+         --config=/ncf/sba01/ukbAgingPipeline/config.json \
+         --bulk-field='actigraphy_cwa:90001'  \
+         --download-bulk-data \
+         --slurm \
+         --slurm_partition='ncf'
+         
+# yale
 python3 ./scripts/01b_download_bulk.py \
          --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \
          --bulk-field='rfmri_full_25:25750'  \
@@ -180,6 +226,20 @@ python3 ./scripts/01c_compile_bulk_data.py \
 ---
 
 ### Step 2: Download Genetic Data
+
+```bash
+
+python3 ./scripts/02_download_genetic.py \
+         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \
+         --bulk-field='rfmri_full_25:25750'  \
+         --bulk-field='rfmri_full_100:25751'  \
+         --bulk-field='rfmri_part_25:25752'  \
+         --bulk-field='rfmri_part_100:25753'  \
+         --bulk-field='rfmri_rsfa_25:25754'  \
+         --bulk-field='rfmri_rsfa_100:25755'
+
+```
+
 
 ---
 

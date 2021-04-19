@@ -30,12 +30,15 @@ def main():
         parser = argparse.ArgumentParser()
         opt = parser.parse_args()
         opt.config = '/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json'
+        opt.config = '/ncf/sba01/ukbAgingPipeline/config.json'
         opt.bulk_field = [['rfmri_full_25:25750'], ['rfmri_full_100:25751'], ['rfmri_part_25:25752'], ['rfmri_part_100:25753'], ['rfmri_rsfa_25:25754'], ['rfmri_rsfa_100:25755']]
         opt.make_bulk_list = True
         opt.download_bulk_data = False
         opt.slurm = True
         opt.slurm_partition = 'short'
+        opt.slurm_partition = 'ncf'
         opt.singularity_container = '/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/simons_ukb_aging_pipeline'
+        opt.singularity_container = '/ncf/sba01/ukbAgingPipeline/simons_ukb_aging_pipeline'
 
     # parse args
     config_file     = opt.config
@@ -67,7 +70,9 @@ def main():
     bulk_dir = os.path.join(config_json['base_dir'], 'data/ukb/bulk')
 
     # path to UKB encoding file
-    ukb_enc = config_json['ukb_enc']
+    enc_idx = 0
+    ukb_enc  = config_json['ukb_encs'][enc_idx]['ukb_enc']
+    enc_key  = config_json['ukb_encs'][enc_idx]['ukb_key']
     if ukb_enc[-4:] == '.enc':
         ukb_enc_file = ukb_enc.replace('.enc','.enc_ukb')
     elif ukb_enc[-8:] == '.enc_ukb':
@@ -102,7 +107,7 @@ def main():
                 print('....Submitting to Slurm....')
 
                 # copy the ukbconv utility to the bulk download dir
-                orig_ubconv = os.path.join(config_json['base_dir'], 'external', 'ukbconv')
+                orig_ubconv = os.path.join(config_json['repo_dir'], 'external', 'ukbconv')
                 shutil.copy(orig_ubconv, os.path.join(bulk_out_dir, 'ukbconv'))
 
                 # symlink the ukb*enc_ukb file to bulk download dir
@@ -141,13 +146,13 @@ def main():
             os.chdir(bulk_out_dir)
 
             # copy the ukbfetch utility to the bulk download dir
-            orig_ubconv = os.path.join(config_json['base_dir'], 'external', 'ukbfetch')
-            shutil.copy(orig_ubconv, os.path.join(bulk_out_dir, 'ukbfetch'))
-            key_name = config_json['ukb_key'].split('/')[-1]
-            shutil.copy(config_json['ukb_key'], os.path.join(bulk_out_dir, key_name))
+            orig_ukbconv = os.path.join(config_json['repo_dir'], 'external', 'ukbfetch')
+            shutil.copy(orig_ukbconv, os.path.join(bulk_out_dir, 'ukbfetch'))
+            key_name = enc_key.split('/')[-1]
+            shutil.copy(enc_key, os.path.join(bulk_out_dir, key_name))
 
             # read file with subjects to pull
-            bulk_file = os.path.join(enc_dir, '{}.bulk'.format(bulk_id))
+            bulk_file = os.path.join(bulk_out_dir, '{}.bulk'.format(bulk_id))
             bulk_df   = pd.read_csv(bulk_file, header=None, delim_whitespace=True)
             start = 1
             nrows = bulk_df.shape[0]
@@ -164,7 +169,8 @@ def main():
                 # write command to slurm file
                 if slurm == True:
                     slurm_fetch = os.path.join(slurm_dir, 'download_{}_{}'.format(start, bulk_id))
-                    slurm_path = writeSlurm(slurm_fetch, 'short', fetch_cmd, str(start), stime='6:00:00', n_gpu=None, nthreads=2, mem='8G')
+                    slurm_path = writeSlurm(slurm_fetch, slurm_partition, fetch_cmd, str(start), stime='6:00:00', n_gpu=None, nthreads=2, mem='8G')
+                    print(slurm_path)
                     job_id = submitSlurm(slurm_path)
 
                 else:

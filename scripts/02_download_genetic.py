@@ -21,41 +21,46 @@ def main():
         parser = argparse.ArgumentParser()
         opt = parser.parse_args()
         opt.config = '/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json'
+        opt.config = '/ncf/sba01/ukbAgingPipeline/config.json'
         opt.download_genotyped = True
         opt.slurm = True
+
+    with open(opt.config, 'r') as f:
+        config_json = json.load(f)[0]
 
     # list of chromosomes to download
     chrom_list = [str(chr) for chr in range(1,27)]
     chrom_list = chrom_list + ['X', 'Y', 'XY', 'MT']
 
     # copy encoding files/keys to the genotyped data directories
-    enc_file      = config_json['ukb_enc'].replace('.enc', '.enc_ukb')
-    enc_base      = enc_file.split('/')[-1]
-    enc_key       = config_json['ukb_key']
-    key_base      = enc_key.split('/')[-1]
+    enc_idx   = 0
+    enc_file  = config_json['ukb_encs'][enc_idx]['ukb_enc']
+    enc_key   = config_json['ukb_encs'][enc_idx]['ukb_key']
+
+    enc_base  = enc_file.split('/')[-1]
+    key_base  = enc_key.split('/')[-1]
 
     # GENOTYPED
+    # --------
     genotyped_dir = os.path.join(config_json['base_dir'], 'data/ukb/genotypes/genotyped')
     if not os.path.exists(os.path.join(genotyped_dir, key_base)):
         shutil.copy(enc_key, os.path.join(genotyped_dir, key_base))
 
     # IMPUTED
+    # --------
     imputed_dir = os.path.join(config_json['base_dir'], 'data/ukb/genotypes/imputed')
     if not os.path.exists(os.path.join(imputed_dir, key_base)):
         shutil.copy(enc_key, os.path.join(imputed_dir, key_base))
 
     # copy the ukbgene utility
-    orig_ukbgene = os.path.join(config_json['base_dir'], 'external/ukbgene')
+    orig_ukbgene = os.path.join(config_json['repo_dir'], 'external/ukbgene')
     shutil.copy(orig_ukbgene, os.path.join(genotyped_dir, 'ukbgene'))
     shutil.copy(orig_ukbgene, os.path.join(imputed_dir, 'ukbgene'))
 
     if opt.download_genotyped == True:
         for chrom in chrom_list:
             os.chdir(genotyped_dir)
-            os.system()
             fetch_cmd = ['./ukbgene', 'cal', '-a./{}'.format(key_base), '-c{}'.format(chrom)]
-            if slurm == True:
-
 
             p = subprocess.Popen(fetch_cmd, stdout=subprocess.PIPE)
             out, err = p.communicate()
