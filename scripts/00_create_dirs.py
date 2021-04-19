@@ -4,7 +4,7 @@ import os
 import json
 import subprocess
 import argparse
-impory glob
+import glob
 
 def main():
     parser = argparse.ArgumentParser()
