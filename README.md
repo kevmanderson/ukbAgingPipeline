@@ -10,12 +10,15 @@ This repository processes UK Biobank data for integration within the Simons Brai
 4. Compile UK Biobank variable metadata.
 5. Dump all data into an SQL database. 
 
+Pipeline components have been containerized wherever possible. 
+
+Running this code will require a bit of unavoidable babysitting given dependencies between steps. For instance, bulk MRI data has to first be downloaded from the UKB before it can be combined and processed. 
 
 ### Installation 
 
 This majority of this code is meant to be run using Docker or Singularity. 
 
-Feel free to clone this repository to modify/develop however you'd like. 
+Feel free to clone this repository to modify and develop however you'd like. 
 
 #### Singularity
 ```bash
@@ -211,6 +214,30 @@ This step will also create the ```covariateTable.csv``` file used for preselecti
 
 ### Step 5: Genetic Preprocessing
 
+Genetic preprocessing is conducted on imputed UKB genetic data. 
+
+#####Stage 1: Initial Filter
+A. Variant filtering to retrain.  
+2. Bi-allelic variants.  
+3. SNPs with imputed accuracies (i.e. INFO) > 0.60.  
+
+B. Individual filtering to retain individuals with:  
+1. European Ancestry.
+2. No Sex Aneuploidy.
+3. Genetic sex matching reported sex. 
+4. Inclusion in UKB Kinship estimation. 
+
+##### Stage 2: Combined Filtered Data
+
+bgen files are originally split by chromsome, we combined them into a single file to allow for QC with plink. 
+
+#### Stage 3: Plink QC
+
+
+
+
+   
+
 ```bash
 # Option 1: run the command locally on each chromosome
 for chrom in {1..22};
@@ -224,18 +251,39 @@ do
 done
     
     
+# Option 2: Run each chromosome filtering in parallel using slurm
+slurm_dir=/gpfs/milgram/project/holmes/kma52/buckner_aging/slurm
+for chrom in {1..22};
+do
+    slurm_file=${slurm_dir}/snp_qc_filter_bgen_chr${chrom}.txt
+    slurm_out_file=${slurm_dir}/snp_qc_filter_bgen_chr${chrom}_out.txt
+    echo $slurm_file
+    # write singularity command to slurm submission file
+cat << EOF > ${slurm_file}
+#!/bin/bash
+#SBATCH --partition=short
+#SBATCH --output=${slurm_out_file}
+#SBATCH --nodes=1
+#SBATCH --ntasks=1 --cpus-per-task=10
+#SBATCH --job-name=$chrom
+#SBATCH --time=06:00:00
+
+singularity run simons_ukb_aging_pipeline \\
+python3 /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/05_ukb_genetic_pipe.py \\
+    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \\
+    --chrom=${chrom} \\
+    --maf=0.01 \\
+    --hwe=1e-6 \\
+    --mind=0.02 \\
+    --geno=0.02 \\
+    --info=0.6 \\
+    --filter_bgen
+echo 'done'
+EOF
+    # submit job to cluster
+    sbatch < ${slurm_file}
+done
     
-    parser = argparse.ArgumentParser(epilog=example_text, add_help=False, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--config', '-c', dest='config', required=True, help='Full path to the user configuration file')
-    parser.add_argument('--chrom', dest='maf', default=0.01, required=False, help='Minor Allele Frequency')
-    parser.add_argument('--maf', dest='maf', default=0.01, required=False, help='Minor Allele Frequency')
-    parser.add_argument('--hwe', dest='hwe', default=1e-6, required=False, help='Hardy-Weinberg Equilibrium')
-    parser.add_argument('--mind', dest='mind', default=0.02, required=False, help='Genotype Missingness')
-    parser.add_argument('--geno', dest='geno', default=0.02, required=False, help='SNP Missingness')
-    parser.add_argument('--info', dest='info', default=0.60, required=False, help='SNP Missingness')
-    parser.add_argument('--european', dest='info', default=0.60, required=False, help='SNP Missingness')
-    parser.add_argument('--help', '-h', action='help', default=argparse.SUPPRESS, help='This script will unpack and convert UK Biobank')
-    opt = parser.parse_args()
     
 ```
 

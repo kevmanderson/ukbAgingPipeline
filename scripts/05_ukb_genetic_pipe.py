@@ -23,7 +23,7 @@ def create_out_dir_name(imp_or_cal, maf, hwe, mind, geno, info):
     out_dir = out_dir.replace('.', '_').replace('e-', 'e')
     return out_dir
 
-def create_subject_filter_list(genetic_sex_df, sex_df, aneuploidy_df, zygosity_df, ethnicity_df, kinship_df):
+def create_subject_filter_list(genetic_sex_df, sex_df, aneuploidy_df, ethnicity_df, kinship_df):
     # start with subjects that have a genetic sex report
     keep_subs = list(genetic_sex_df['eid'])
 
@@ -137,13 +137,13 @@ def main():
 
     parser = argparse.ArgumentParser(epilog=example_text, add_help=False, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--config', '-c', dest='config', required=True, help='Full path to the user configuration file')
-    parser.add_argument('--chrom', dest='maf', default=0.01, required=False, help='Minor Allele Frequency')
+    parser.add_argument('--chrom', dest='chrom', required=True, help='Chromosome')
     parser.add_argument('--maf', dest='maf', default=0.01, required=False, help='Minor Allele Frequency')
     parser.add_argument('--hwe', dest='hwe', default=1e-6, required=False, help='Hardy-Weinberg Equilibrium')
     parser.add_argument('--mind', dest='mind', default=0.02, required=False, help='Genotype Missingness')
     parser.add_argument('--geno', dest='geno', default=0.02, required=False, help='SNP Missingness')
     parser.add_argument('--info', dest='info', default=0.60, required=False, help='SNP Missingness')
-    parser.add_argument('--european', dest='info', default=0.60, required=False, help='SNP Missingness')
+    parser.add_argument('--filter_bgen', dest='filter_bgen', action='store_true', default=False, required=False, help='Filter BGEN files')
     parser.add_argument('--help', '-h', action='help', default=argparse.SUPPRESS, help='This script will unpack and convert UK Biobank')
     opt = parser.parse_args()
     config_file = opt.config
@@ -192,44 +192,40 @@ def main():
     aneuploidy_df  = retrieve_field(conn=conn, field='22019', table_name='str', visit=0)
     ethnicity_df   = retrieve_field(conn=conn, field='22006', table_name='str', visit=0)
     kinship_df     = retrieve_field(conn=conn, field='22021', table_name='str', visit=0)
-    keep_subjects  = create_subject_filter_list(genetic_sex_df, sex_df, aneuploidy_df, zygosity_df, ethnicity_df, kinship_df)
+    keep_subs = create_subject_filter_list(genetic_sex_df, sex_df, aneuploidy_df, ethnicity_df, kinship_df)
 
     # identify bi-allelic SNPs with
-    print('Reading UKB MFI')
-    mfi_df = pd.read_table(os.path.join(imputed_dir, 'ukb_mfi_chr{}_v3.txt').format(opt.chrom), header=None)
+    if opt.filter_bgen == True:
+        print('Reading UKB MFI')
+        mfi_df = pd.read_table(os.path.join(imputed_dir, 'ukb_mfi_chr{}_v3.txt').format(opt.chrom), header=None)
 
-    # filter based on INFO score
-    mfi_filter_df = mfi_df.loc[mfi_df[7] >= opt.info]
+        # filter based on INFO score
+        mfi_filter_df = mfi_df.loc[mfi_df[7] >= float(opt.info)]
 
-    # only retain bi-allelic SNPs
-    mfi_filter_df['a1_len'] = [len(x) for x in mfi_filter_df[3]]
-    mfi_filter_df['a2_len'] = [len(x) for x in mfi_filter_df[4]]
-    mfi_filter_df = mfi_filter_df.loc[mfi_filter_df['a1_len'] == 1]
-    mfi_filter_df = mfi_filter_df.loc[mfi_filter_df['a2_len'] == 1]
-    mfi_filter_df['chr'] = opt.chrom
+        # only retain bi-allelic SNPs
+        mfi_filter_df['a1_len'] = [len(x) for x in mfi_filter_df[3]]
+        mfi_filter_df['a2_len'] = [len(x) for x in mfi_filter_df[4]]
+        mfi_filter_df = mfi_filter_df.loc[mfi_filter_df['a1_len'] == 1]
+        mfi_filter_df = mfi_filter_df.loc[mfi_filter_df['a2_len'] == 1]
+        mfi_filter_df['chr'] = opt.chrom
 
-    # write PLINK SNP filter file
-    snp_filter_file = os.path.join(imputed_dir, 'ukb_plink_snp_filter_{}_v3.txt'.format(opt.chrom))
-    mfi_filter_df[['chr', 2, 2]].to_csv(snp_filter_file, sep='\t', index=None, header=None)
+        # write PLINK SNP filter file
+        snp_filter_file = os.path.join(imputed_out_path, 'ukb_plink_snp_filter_{}_v3.txt'.format(opt.chrom))
+        mfi_filter_df[['chr', 2, 2]].to_csv(snp_filter_file, sep='\t', index=None, header=None)
 
-    # write PLINK SNP subject filter
-    subj_filter_file = os.path.join(imputed_dir, 'ukb_plink_subject_filter.txt')
-    plink_df = pd.DataFrame({'FID': list(keep_subs), 'IID': list(keep_subs)})
-    plink_df.to_csv(subj_filter_file, sep='\t', index=None)
+        # write PLINK SNP subject filter
+        subj_filter_file = os.path.join(imputed_dir, 'ukb_plink_subject_filter.txt')
+        plink_df = pd.DataFrame({'FID': list(keep_subs), 'IID': list(keep_subs)})
+        plink_df.to_csv(subj_filter_file, sep='\t', index=None)
 
+        # plink preprocessing command
+        plink2     = '/opt/plink2/plink2'
+        cur_bgen   = os.path.join(imputed_dir, 'ukb_imp_chr{}_v3.bgen'.format(opt.chrom))
+        cur_sample = os.path.join(imputed_dir, 'ukb25163_imp_chr{}_v3_s487324.sample'.format(opt.chrom))
+        bgen_out   = os.path.join(imputed_out_path, 'TMP_filter_ukb_imp_chr{}_v3'.format(opt.chrom))
 
-    # plink preprocessing command
-    plink2     = '/opt/plink2/plink2'
-    cur_bgen   = os.path.join(imputed_dir, 'ukb_imp_chr{}_v3.bgen'.format(opt.chrom))
-    cur_sample = os.path.join(imputed_dir, 'ukb25163_imp_chr{}_v3_s487324.sample'.format(opt.chrom))
-    bgen_out   = os.path.join(imputed_dir, 'TMP_filter_ukb_imp_chr{}_v3.bgen'.format(opt.chrom))
-
-    plink_cmd  = (f'''{plink2} \\\n--bgen {cur_bgen} ref-first \\\n--sample {cur_sample} \\\n--max-alleles 2 \\\n-export bgen-1.2 'bits=8' \\\n--out {bgen_out} \\\n--keep {subj_filter_file} \\\n--extract 'range' {snp_filter_file}''') # --memory 120000
-    print(plink_cmd)
-
-    mfi_list = [pd.read_table(x, header=None) for x in glob.glob(os.path.join(imputed_dir, 'ukb_mfi_chr*_v3.txt'))]
-    mfi_df   = pd.concat(mfi_list)
-    keep_subjects = create_subject_filter_list(genetic_sex_df, sex_df, aneuploidy_df, zygosity_df, ethnicity_df, kinship_df)
+        plink_cmd  = (f'''{plink2} \\\n--bgen {cur_bgen} ref-first \\\n--sample {cur_sample} \\\n--max-alleles 2 \\\n-export bgen-1.2 'bits=8' \\\n--out {bgen_out} \\\n--keep {subj_filter_file} \\\n--extract 'range' {snp_filter_file}''') # --memory 120000
+        os.system(plink_cmd)
 
 
     # genotyped
