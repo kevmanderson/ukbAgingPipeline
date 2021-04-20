@@ -84,6 +84,8 @@ Create a directory structure for placing all of the code
      └─── ukb
           └─── bulk
           └─── raw
+          └─── output
+              └─── sqlite_files
           └─── genotypes
               └─── genotyped
               └─── imputed
