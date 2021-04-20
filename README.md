@@ -1,6 +1,9 @@
 # UK Biobank Processing Pipeline
 
+Author: Kevin Anderson (kevinanderson@fas.harvard.edu)
+
 This repository processes UK Biobank data for integration within the Simons Brain Aging website.
+
 
 ### What This Repo Does:
 
