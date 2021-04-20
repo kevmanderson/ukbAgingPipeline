@@ -74,6 +74,15 @@ If you're using Docker, just replace "singularity run" with "docker run".
 ---
 
 ### Step 0: Prepare Directories
+
+Create a directory structure for placing all of the code 
+
+.
++-- _config.yml
++-- _drafts
+|   +-- begin-with-the-crazy-ideas.textile
+|   +-- on-simplicity-in-technology.markdown
+
 ```bash
 singularity run simons_ukb_aging_pipeline \
   python3 scripts/00_create_dirs.py \
