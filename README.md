@@ -59,7 +59,7 @@ docker pull kevinanderson/simons-ukb-aging-pipeline
   
 | Variable | Explanation |
 | ------------- | ------------- |
-| base_dir | Path to the primary project directory where results will be downloaded/written. The code will handle directory creation. This path is ideally empty, but its (probably) OK if not.  |
+| base_dir | Path to the primary project directory where results will be downloaded/written. The code will handle directory creation. This path is ideally empty, but its (probably) OK if not. Path should have a health (>100GB) amount of disk storage. |
 | repo_dir | Top-level path to the this code repository (i.e. where ```git clone``` put all the code). Should be different than ```base_dir```.  |
 | ukb_encs | List of ukb_enc files and their keys. It's preferred to merge your UKB data baskets into a single enc file, but this can take time. |
 | ukb_enc | Full path to your raw UK Biobank data bucket, downloaded from the UKB AMS portal. I suggest merging all your data into a single bucket using the UKB AMS tools...it will make your life easier in the long run anyways. | 
