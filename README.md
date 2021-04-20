@@ -7,11 +7,11 @@ This repository processes UK Biobank data for integration within the Simons Brai
 
 ### What This Repo Does:
 
-1. Convert encoded UKB data into usable formats. 
-2. Download and compiles "Bulk" UKB data.
-3. Perform a modified PHESANT phenome-scan quantifying **AGE** effects. 
-4. Compile UK Biobank variable metadata.
-5. Dump all data into an SQL database. 
+1. Converts encoded UKB data into usable formats. 
+2. Downloads and compiles "Bulk" UKB data.
+3. Performs a modified PHESANT phenome-scan quantifying **AGE** effects. 
+4. Compiles UK Biobank variable metadata.
+5. Dumps all data into an SQL database. 
 
 Pipeline components have been containerized wherever possible. 
 
