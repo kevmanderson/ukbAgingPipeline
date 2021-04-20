@@ -78,6 +78,8 @@ If you're using Docker, just replace "singularity run" with "docker run".
 Create a directory structure for placing all of the code 
 ```
 . "base_dir"
+└─── external
+└─── slurm
 └─── data
      └─── ukb
           └─── bulk
@@ -85,8 +87,6 @@ Create a directory structure for placing all of the code
           └─── genotypes
               └─── genotyped
               └─── impyted
-└─── external
-└─── slurm
 ```
 
 ```bash
