@@ -2,7 +2,12 @@
   {
     "repo_dir": "/ncf/sba01/ukbAgingPipeline",
     "base_dir": "/ncf/sba01/simons_aging",
-    "ukb_enc": "/ncf/sba01/data/ukb/enc_files/ukb45156.enc",
-    "ukb_key": "/ncf/sba01/data/ukb/enc_files/ukb45156.key"
+    "ukb_encs" : [{
+      "ukb_enc": "/ncf/sba01/data/ukb/enc_files/ukb45156.enc",
+      "ukb_key": "/ncf/sba01/data/ukb/enc_files/ukb45156.key"
+    },{
+      "ukb_enc": "/ncf/sba01/data/ukb/enc_files/ukb46521.enc",
+      "ukb_key": "/ncf/sba01/data/ukb/enc_files/ukb46521.key"
+    }]
   }
 ]
