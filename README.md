@@ -19,11 +19,17 @@ Running this code will require a bit of unavoidable babysitting given dependenci
 
 ### Installation 
 
-This majority of this code is meant to be run using Docker or Singularity. Singularity is usually preferred in cluster environments. 
+Singularity is usually preferred in cluster environments. 
 
 Feel free to clone this repository to modify and develop however you'd like. 
 
-#### Singularity
+#### Option 1: Clone repository
+```bash
+# use this option if you'd like to modify/develop any code
+git clone https://github.com/kevmanderson/ukbAgingPipeline.git
+```
+
+#### Option 2: Singularity
 ```bash
 # optional, clear prior singularity images
 singularity cache clean
@@ -31,7 +37,7 @@ singularity cache clean
 singularity pull --name simons_ukb_aging_pipeline docker://kevinanderson/simons-ukb-aging-pipeline
 ```
 
-#### Docker
+#### Option 3: Docker
 ```bash
 docker pull kevinanderson/simons-bulk-rnaseq-pipeline
 ```
