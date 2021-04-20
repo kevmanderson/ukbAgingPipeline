@@ -90,16 +90,25 @@ Create a directory structure for placing all of the code
 ```
 
 ```bash
+# Example command (obviously, define $repo_dir variable yourself)
+cd ${repo_dir}
 singularity run simons_ukb_aging_pipeline \
-  python3 scripts/00_create_dirs.py \
+  python3 /scripts/00_create_dirs.py \
     --config=./config.json
-    
-#harvard 
+
+# if modifying code, use full path to the script
+cd ${repo_dir}
+singularity run simons_ukb_aging_pipeline \
+  python3 ${repo_dir}/scripts/00_create_dirs.py \
+    --config=${repo_dir}/config.json
+   
+
+# TMP -- harvard 
 singularity run simons_ukb_aging_pipeline \
   python3 /ncf/sba01/ukbAgingPipeline/scripts/00_create_dirs.py \
-    --config=/ncf/sba01/ukbAgingPipeline/config.json
+    --config=/ncf/sba01/ukbAgingPipeline/harvard_config.json
     
-#yale    
+# TMP -- yale    
 singularity run simons_ukb_aging_pipeline \
   python3 /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/00_create_dirs.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json
