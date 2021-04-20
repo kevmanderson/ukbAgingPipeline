@@ -65,6 +65,11 @@ docker pull kevinanderson/simons-ukb-aging-pipeline
 | ukb_enc | Full path to your raw UK Biobank data bucket, downloaded from the UKB AMS portal. I suggest merging all your data into a single bucket using the UKB AMS tools...it will make your life easier in the long run anyways. | 
 | ukb_key | Full path to your UKB key, required for decrypting the encoded ukb data | 
 
+---
+
+*N.B.* All example commands are given in Singularity. 
+
+If you're using Docker, just replace "singularity run" with "docker run". 
 
 ---
 
