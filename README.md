@@ -77,12 +77,16 @@ If you're using Docker, just replace "singularity run" with "docker run".
 
 Create a directory structure for placing all of the code 
 ```
-.
-+-- _config.yml
-+-- _drafts
-|   +-- begin-with-the-crazy-ideas.textile
-|   +-- on-simplicity-in-technology.markdown
-
+. "base_dir"
+└─── data
+     └─── ukb
+          └─── bulk
+          └─── raw
+          └─── genotypes
+              └─── genotyped
+              └─── impyted
+└─── external
+└─── slurm
 ```
 
 ```bash
