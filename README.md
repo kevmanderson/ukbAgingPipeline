@@ -86,7 +86,7 @@ Create a directory structure for placing all of the code
           └─── raw
           └─── genotypes
               └─── genotyped
-              └─── impyted
+              └─── imputed
 ```
 
 ```bash
