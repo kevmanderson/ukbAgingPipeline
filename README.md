@@ -19,13 +19,15 @@ Running this code will require a bit of unavoidable babysitting given dependenci
 
 ### Installation 
 
-This majority of this code is meant to be run using Docker or Singularity. 
+This majority of this code is meant to be run using Docker or Singularity. Singularity is usually preferred in cluster environments. 
 
 Feel free to clone this repository to modify and develop however you'd like. 
 
 #### Singularity
 ```bash
+# optional, clear prior singularity images
 singularity cache clean
+# Pull the docker container 
 singularity pull --name simons_ukb_aging_pipeline docker://kevinanderson/simons-ukb-aging-pipeline
 ```
 
