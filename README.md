@@ -1,8 +1,8 @@
 # UK Biobank Processing Pipeline
 
-Author: Kevin Anderson (kevinanderson@fas.harvard.edu)
+Author: Kevin Anderson (kevinanderson@fas.harvard.edu), Post-Doc, Harvard University.
 
-This repository processes UK Biobank data for integration within the Simons Brain Aging website.
+This repository was created in the Buckner Laboratory. It documents how we process UK Biobank data for use in a related [interactive web browser](https://github.com/kevmanderson/brain-age-discovery-engine). 
 
 
 ### What This Repo Does:
