@@ -25,6 +25,9 @@ Feel free to clone this repository to modify and develop however you'd like.
 ```bash
 # use this option if you'd like to modify/develop any code
 git clone https://github.com/kevmanderson/buckner-lab-ukb-pipeline.git
+
+# build local container from within the code repository
+docker -t buckner_lab_ukb_pipeline build .
 ```
 
 #### Option 2: Singularity
@@ -32,12 +35,14 @@ Singularity is usually preferred in cluster environments.
 ```bash
 # optional, clear prior singularity images
 singularity cache clean
+
 # Pull the docker container 
 singularity pull --name buckner_lab_ukb_pipeline docker://kevinanderson/buckner-lab-ukb-pipeline
 ```
 
 #### Option 3: Docker
 ```bash
+# Pull the docker container 
 docker pull kevinanderson/buckner-lab-ukb-pipeline
 ```
 
@@ -159,7 +164,7 @@ singularity run simons_ukb_aging_pipeline \
 
 Some of the neuroimaging phenotypes are not available in the ```*.enc_ukb``` file. These fields include resting-state "imaging derived phenotypes" (IDPs). We have to download and compile them separately. 
 
-First, create *.bulk files listing the bulk data to download. 
+A) First, create *.bulk files listing the bulk data to download. 
 ```bash
 # harvard
 python3 ./scripts/01b_download_bulk.py \
@@ -183,52 +188,11 @@ python3 ./scripts/01b_download_bulk.py \
          --make-bulk-list \
          --slurm \
          --slurm_partition='ncf'
-         
-# yale
-python3 ./scripts/01b_download_bulk.py \
-         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \
-         --bulk-field='rfmri_full_25:25750'  \
-         --bulk-field='rfmri_full_100:25751'  \
-         --bulk-field='rfmri_part_25:25752'  \
-         --bulk-field='rfmri_part_100:25753'  \
-         --bulk-field='rfmri_rsfa_25:25754'  \
-         --bulk-field='rfmri_rsfa_100:25755'  \
-         --make-bulk-list \
-         --slurm \
-         --slurm_partition='short'
-         
-# Let the above command finish executing before running this step. 
-# second, actually download data
-python3 ./scripts/01b_download_bulk.py \
-         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \
-         --bulk-field='rfmri_full_25:25750'  \
-         --bulk-field='rfmri_full_100:25751'  \
-         --bulk-field='rfmri_part_25:25752'  \
-         --bulk-field='rfmri_part_100:25753'  \
-         --bulk-field='rfmri_rsfa_25:25754'  \
-         --bulk-field='rfmri_rsfa_100:25755'  \
-         --download-bulk-data \
-         --slurm \
-         --slurm_partition='short'
-       
-python3 ./scripts/01b_download_bulk.py \
-         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
-         --bulk-field='rfmri_rsfa_100:25755'  \
-         --download-bulk-data \
-         --slurm \
-         --slurm_partition='short'
-         
-         
-python3 ./scripts/01b_download_bulk.py \
-         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \
-         --bulk-field='rfmri_rsfa_100:25755'  \
-         --download-bulk-data
-         # --slurm # use this option to submit download as SLURM job
 ```
 
-Second, actually download the bulk data. 
+B) Second, actually download the bulk data. 
 ```bash
-# yale
+# harvard
 python3 ./scripts/01b_download_bulk.py \
          --config=/ncf/sba01/ukbAgingPipeline/config.json \
          --bulk-field='actigraphy_cwa:90001'  \
@@ -236,9 +200,9 @@ python3 ./scripts/01b_download_bulk.py \
          --slurm \
          --slurm_partition='ncf'
 
-# harvard
+# yale
 python3 ./scripts/01b_download_bulk.py \
-         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \
+         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
          --bulk-field='rfmri_full_25:25750'  \
          --bulk-field='rfmri_full_100:25751'  \
          --bulk-field='rfmri_part_25:25752'  \
@@ -250,7 +214,7 @@ python3 ./scripts/01b_download_bulk.py \
          --slurm_partition='short'
 ```
 
-Once bulk MRI data have been downloaded, read and compile them into dataframes.
+C) Once bulk MRI data have been downloaded, read and compile them into dataframes.
 
 ```bash
 singularity run simons_ukb_aging_pipeline \
@@ -265,6 +229,8 @@ python3 ./scripts/01c_compile_bulk_data.py \
 ```
 
 #### Neuroimaging Bulk Fields
+
+#### TODO: finish table/field descriptions
 
 | Bulk Name | Bulk Field ID | Description | 
 | ------------- | ------------- | ------------- |
@@ -292,9 +258,7 @@ python3 ./scripts/02_download_genetic.py \
 
 ```
 
-
 ---
-
 
 ### Step 3: Prep UKB Metadata
 
@@ -357,10 +321,6 @@ bgen files are originally split by chromsome, we combined them into a single fil
 
 #### Stage 3: Plink QC
 
-
-
-
-   
 
 ```bash
 # Option 1: run the command locally on each chromosome
