@@ -24,7 +24,7 @@ Feel free to clone this repository to modify and develop however you'd like.
 #### Option 1: Clone repository
 ```bash
 # use this option if you'd like to modify/develop any code
-git clone https://github.com/kevmanderson/ukbAgingPipeline.git
+git clone https://github.com/kevmanderson/buckner-lab-ukb-pipeline.git
 ```
 
 #### Option 2: Singularity
@@ -33,12 +33,12 @@ Singularity is usually preferred in cluster environments.
 # optional, clear prior singularity images
 singularity cache clean
 # Pull the docker container 
-singularity pull --name simons_ukb_aging_pipeline docker://kevinanderson/simons-ukb-aging-pipeline
+singularity pull --name buckner_lab_ukb_pipeline docker://kevinanderson/buckner-lab-ukb-pipeline
 ```
 
 #### Option 3: Docker
 ```bash
-docker pull kevinanderson/simons-ukb-aging-pipeline
+docker pull kevinanderson/buckner-lab-ukb-pipeline
 ```
 
 
