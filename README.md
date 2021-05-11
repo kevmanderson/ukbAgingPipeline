@@ -2,7 +2,9 @@
 
 Author: Kevin Anderson (kevinanderson@fas.harvard.edu), Post-Doc, Harvard University.
 
-This repository was created in the Buckner Laboratory. It documents how we process UK Biobank data for use in a related [interactive web browser](https://github.com/kevmanderson/brain-age-discovery-engine). 
+This repository was created in the Buckner Laboratory.
+
+It documents how we process UK Biobank data for use in a related interactive browser [insert link]
 
 
 ### What This Repo Does:
@@ -12,6 +14,7 @@ This repository was created in the Buckner Laboratory. It documents how we proce
 3. Performs a modified PHESANT phenome-scan quantifying **AGE** effects. 
 4. Compiles UK Biobank variable metadata.
 5. Dumps all data into an SQL database. 
+
 
 Pipeline components have been containerized wherever possible. 
 
@@ -38,6 +41,7 @@ singularity cache clean
 
 # Pull the docker container 
 singularity pull --name buckner_lab_ukb_pipeline docker://kevinanderson/buckner-lab-ukb-pipeline
+singularity shell buckner_lab_ukb_pipeline
 ```
 
 #### Option 3: Docker
