@@ -62,7 +62,17 @@ opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser);
 
 opt = NULL
-opt$config = '/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json'
+opt$config = '/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json'
+nondocker = False
+if (nondocker == True){
+  config   = fromJSON(file = opt$config)
+  base_dir = config[[1]]$base_dir
+  showcase_file = config[[1]]$showcase_file
+  outcome_file  = config[[1]]$outcome_file
+  codings_file  = config[[1]]$codings_file
+  ordinal_file  = config[[1]]$ordinal_file
+
+}
 
 # process config file
 config   = fromJSON(file = opt$config)

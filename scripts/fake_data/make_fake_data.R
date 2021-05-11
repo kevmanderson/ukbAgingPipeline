@@ -21,7 +21,9 @@ base_dir = config[[1]]$base_dir
 repo_dir = config[[1]]$repo_dir
 showcase_file = paste0(repo_dir, '/ref_files/showcase.csv')
 outcome_file  = paste0(repo_dir, '/ref_files/outcome-info.tsv')
-codings_file  = paste0(repo_dir, '/ref_files/data-coding-ordinal-info.txt')
+codings_file  = paste0(repo_dir, '/ref_files/codings.csv')
+ordinal_file  = paste0(repo_dir, '/ref_files/data-coding-ordinal-info.txt')
+
 
 # output directory for synthetic data
 # --------
@@ -31,6 +33,7 @@ fake_ref_dir = paste0(base_dir, '/data/fake_data')
 # read variable metadata files
 showcase_df  = read.csv(showcase_file)
 codings_df   = read.csv(codings_file)
+ordinal_df   = read.csv(ordinal_file)
 outcome_df   = read_delim(outcome_file, delim='\t')
 
 # pull out relevant fields in each metadata file
@@ -122,48 +125,48 @@ rownames(covariate_df) = NULL
 
 # start to make the fake dataframe
 nsubs = 10000
-synethic_df = data.frame(f.eid=1:nsubs)
+synthetic_df = data.frame(f.eid=1:nsubs)
 
 # make fake age data
-synethic_df['f.21003.0.0'] = rnorm(n=nsubs, mean=65, sd=5)
-synethic_df['f.21003.1.0'] = rnorm(n=nsubs, mean=65, sd=5)
-synethic_df['f.21003.2.0'] = rnorm(n=nsubs, mean=65, sd=5)
-synethic_df['f.21003.3.0'] = rnorm(n=nsubs, mean=65, sd=5)
+synthetic_df['f.21003.0.0'] = rnorm(n=nsubs, mean=65, sd=5)
+synthetic_df['f.21003.1.0'] = rnorm(n=nsubs, mean=65, sd=5)
+synthetic_df['f.21003.2.0'] = rnorm(n=nsubs, mean=65, sd=5)
+synthetic_df['f.21003.3.0'] = rnorm(n=nsubs, mean=65, sd=5)
 
 # genetic sex
-synethic_df['f.22001.0.0'] = ifelse(sample(c(0,1), replace=TRUE, size=nsubs) == 1, 'Male', 'Female')
+synthetic_df['f.22001.0.0'] = ifelse(sample(c(0,1), replace=TRUE, size=nsubs) == 1, 'Male', 'Female')
 
 # UKB assessment center
 center_arr = sample(c(0,1,2), replace=TRUE, size=nsubs)
-synethic_df['f.54.2.0'] = recode(center_arr, `0`='Cheadle (imaging)', `1`='Newcastle (imaging)', `2`='Reading (imaging)')
+synthetic_df['f.54.2.0'] = recode(center_arr, `0`='Cheadle (imaging)', `1`='Newcastle (imaging)', `2`='Reading (imaging)')
 center_arr = sample(c(0,1,2), replace=TRUE, size=nsubs)
-synethic_df['f.54.0.0'] = recode(center_arr, `0`='Cheadle', `1`='Newcastle', `2`='Reading')
+synthetic_df['f.54.0.0'] = recode(center_arr, `0`='Cheadle', `1`='Newcastle', `2`='Reading')
 
 # structural MRI covariates
-synethic_df['f.25735.2.0'] = rnorm(n=nsubs, mean=80, sd=5)
-synethic_df['f.25734.2.0'] = rnorm(n=nsubs, mean=30, sd=2)
-synethic_df['f.25756.2.0'] = rnorm(n=nsubs, mean=10, sd=12)
-synethic_df['f.25757.2.0'] = rnorm(n=nsubs, mean=100, sd=15)
-synethic_df['f.25758.2.0'] = rnorm(n=nsubs, mean=40, sd=4)
-synethic_df['f.26521.2.0'] = rnorm(n=nsubs, mean=1000, sd=4)
+synthetic_df['f.25735.2.0'] = rnorm(n=nsubs, mean=80, sd=5)
+synthetic_df['f.25734.2.0'] = rnorm(n=nsubs, mean=30, sd=2)
+synthetic_df['f.25756.2.0'] = rnorm(n=nsubs, mean=10, sd=12)
+synthetic_df['f.25757.2.0'] = rnorm(n=nsubs, mean=100, sd=15)
+synthetic_df['f.25758.2.0'] = rnorm(n=nsubs, mean=40, sd=4)
+synthetic_df['f.26521.2.0'] = rnorm(n=nsubs, mean=1000, sd=4)
 
 # functional MRI covariates
-synethic_df['f.25741.2.0'] = rnorm(n=nsubs, mean=.3, sd=.01)
-synethic_df['f.25742.2.0'] = rnorm(n=nsubs, mean=.28, sd=.02)
-synethic_df['f.25744.2.0'] = rnorm(n=nsubs, mean=1, sd=.3)
+synthetic_df['f.25741.2.0'] = rnorm(n=nsubs, mean=.3, sd=.01)
+synthetic_df['f.25742.2.0'] = rnorm(n=nsubs, mean=.28, sd=.02)
+synthetic_df['f.25744.2.0'] = rnorm(n=nsubs, mean=1, sd=.3)
 
 # genetic principle components
 for (pc in 0:39){
-  synethic_df[paste0('f.22009.0.', pc)] = rnorm(n=nsubs, mean=0, sd=.5)
+  synthetic_df[paste0('f.22009.0.', pc)] = rnorm(n=nsubs, mean=0, sd=.5)
 }
 
 # make fake freesurfer data
 freesurfer_cols = meta_df[meta_df$phenoCategory == 'Freesurfer ASEG',]$FieldID
 for (field_id in freesurfer_cols){
-  synethic_df[paste0('f.', field_id, '.0.0')] = rnorm(n=nsubs, mean=sample(2000:4000, 1), sd=sample(20:40, 1))
+  synthetic_df[paste0('f.', field_id, '.0.0')] = rnorm(n=nsubs, mean=sample(2000:4000, 1), sd=sample(20:40, 1))
 }
 
-header = colnames(synethic_df)
+header = colnames(synthetic_df)
 ukbMetaData = meta_df
 
 # create metadata df that matches columns of ukb df
@@ -176,7 +179,7 @@ ukbFieldDF$visit = as.numeric(ukbFieldDF$visit)
 
 
 # create sqlite file
-fake_sql_file = paste0(fake_data_dir, 'ukb_synthetic_sqlite3.db')
+fake_sql_file = paste0(fake_ref_dir, '/ukb_synthetic_sqlite3.db')
 if (file.exists(fake_sql_file)){
   file.remove(fake_sql_file)
 }
@@ -196,7 +199,7 @@ for (pair in dtypePairs){
   if (length(dtypeFieldIds) == 1){
     next
   }
-  dtype_df      = synethic_df[as.character(dtypeFieldIds)]
+  dtype_df      = synthetic_df[as.character(dtypeFieldIds)]
 
   # melt data to long before writing to SQL
   dtype_melted = reshape2::melt(dtype_df, id.vars=c('f.eid'), na.rm=T)
@@ -246,10 +249,11 @@ for (pair in dtypePairs){
 }
 
 # commit the other data tables
+ukbFieldDF$visit = NULL
 dbWriteTable(conn, 'metadata', ukbFieldDF, overwrite = TRUE, append=FALSE)
-dbWriteTable(conn, 'codingsDF', outcome_df, overwrite = TRUE, append=FALSE)
+dbWriteTable(conn, 'datacodes', codings_df, overwrite = TRUE, append=FALSE)
 dbWriteTable(conn, 'covariate_table', covariate_df, overwrite = TRUE, append=FALSE)
-dbWriteTable(conn, 'code_ordinal', codings_df, overwrite = TRUE, append=FALSE)
+dbWriteTable(conn, 'code_ordinal', ordinal_df, overwrite = TRUE, append=FALSE)
 
 dbDisconnect(conn)
 
