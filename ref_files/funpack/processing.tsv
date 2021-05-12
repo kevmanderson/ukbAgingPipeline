@@ -1,0 +1,37 @@
+Variable	Process
+
+# Convert these variables into a set of binary columns, one
+# column per unique value. The metaproc fields are used to
+# generate useful descriptions for each column (and note
+# the ICD/OPCS/other diagnosis vars have already been
+# converted to numeric values in the cleaning stage).
+6150,6155,20003,20199	binariseCategorical(acrossVisits=True, acrossInstances=True, metaproc='codingdesc')
+20001,20002,20004,40011,40012	binariseCategorical(acrossVisits=True, acrossInstances=True, metaproc='hierarchycodedesc')
+40001,40002,40006,40013,41200,41201,41204,41205,41210,41256,41258,41272,41273	binariseCategorical(acrossVisits=True, acrossInstances=True, metaproc='hierarchynumdesc')
+
+# Main ICD vars are binarised, but instead of having binary
+# 1/0 values, each column contains the date of diagnosis,
+# or '0' indicating no diagnosis.
+41202,41203,41270,41271	binariseCategorical(acrossVisits=True, acrossInstances=True, metaproc='hierarchynumdesc', fillval=0, take=[41262,41263,41280,41281])
+
+# Columns will be dropped if they do not meet these criteria:
+#  - have at least 51 non-na values
+#  - have a stddev >1e-6
+#
+# Categorical columns will be dropped if one category comprises
+# 99% of the data.
+all_except,6150,6155,20001,20002,20003,20004,20199,40001,40002,40006,40011,40012,40013,41200,41201,41202,41203,41204,41205,41210,41256,41258,41270,41271,41272,41273	removeIfSparse(minpres=51, maxcat=0.99, minstd=1e-6, abscat=False)
+
+# Binarised vars are subjected to a slightly adjusted sparsity
+# check - we drop columns which don't have at least 10 diagnoses
+# (or which have less than 10 non-diagnoses).
+6150,6155,20001,20002,20003,20004,20199,40001,40002,40006,40011,40012,40013,41200,41201,41204,41205,41210,41256,41258,41272,41273	removeIfSparse(mincat=10)
+
+# At this point, the main ICD vars will contain either
+# a date, or nan (fillval=0, used above, is only applied at
+# export), so a minpres test will suffice.
+41202,41203,41270,41271	removeIfSparse(minpres=10)
+
+# Drop columns which are correlated with other columns (the one
+# with more missing values is dropped).
+all	removeIfRedundant(0.99, 0.2)

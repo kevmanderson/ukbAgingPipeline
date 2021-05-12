@@ -3,10 +3,71 @@
 import os
 import subprocess
 import sys
+import itertools
 
 
 
-def submitSlurm(cmd, dependencies=None):
+def read_funpack_categories(cat_file):
+    '''Read a funpack formatted category.tsv file'''
+    with open(cat_file, 'r') as f:
+        hdr = f.readline()
+        line = f.readlines()
+    field_string = [l.split('\t')[-1].replace('\n', '').replace('"', '') for l in line]
+    field_string = reduce(lambda x, y: x + ',' + y, field_string)
+    field_list = field_string.split(',')
+
+    parsed_fields_l = [parseMatlabRange(l) for l in field_list]
+    parsed_fields = reduce(lambda x, y: x + y, parsed_fields_l)
+
+    return parsed_fields
+
+
+def write_cmd(cmd, write_file, print_path=False):
+    '''Write single or multi-line command to file'''
+    with open(write_file, 'w') as f:
+        f.write(cmd)
+    os.chmod(write_file, 755)
+    if print_path == True:
+        'Writing command: {}'.format(print_path)
+
+def make_symlink(src_path, dest_path):
+    '''Symlink file. Remove and recreate if it already exists'''
+    if src_path != dest_path:
+        if os.path.exists(dest_path):
+            print('Removing previously created symlinked file: {}'.format(dest_path))
+            os.remove(dest_path)
+        print('Symlink: {}'.format(dest_path))
+        os.symlink(src_path, dest_path)
+    else:
+        print('src file is the same as dest file, continuing.')
+
+
+def make_dir(create_path):
+    '''Create a path if it doesnt exist, but also print feedback'''
+    if not os.path.exists(create_path):
+        os.mkdir(create_path)
+        print('Directory created: {}'.format(create_path))
+    else:
+        print('Directory exists: {}'.format(create_path))
+
+
+def create_directories(root_dir):
+    '''
+    Create project directories
+
+    :param root_dir: directory where data will be written
+    :return:
+    '''
+
+    make_dir(root_dir)
+    dir_list = ['data', 'slurm', 'data/ukb',  'data/ukb/external', 'data/ukb/bulk', 'data/ukb/raw',
+                      'data/ukb/genetic', 'data/ukb/genetic/genotyped', 'data/ukb/genetic/imputed']
+    for create_path in dir_list:
+        make_dir(os.path.join(root_dir, create_path))
+
+
+
+def submit_slurm(cmd, dependencies=None):
     if dependencies != None:
         # execute
         p = subprocess.Popen(['sbatch', '--dependency=afterany:' + ':'.join(dependencies), cmd], stdout=subprocess.PIPE)
@@ -19,7 +80,7 @@ def submitSlurm(cmd, dependencies=None):
     return (job_id)
 
 
-def writeSlurm(slurm_file, partition, cmd, jobName, stime='6:00:00', n_gpu=None, nthreads=None, mem=None):
+def write_slurm(slurm_file, partition, cmd, jobName, stime='6:00:00', n_gpu=None, nthreads=None, mem=None):
     '''
     Submit batch job to Yale Milgram cluster (SLURM)
 
@@ -80,6 +141,32 @@ def submitSlurmArrays(job_array, jobs_in_batch, slurm_base, ncpus, partition, jo
 
 
 
+def parseMatlabRange(r):
+    """Parses a string containing a MATLAB-style ``start:stop`` or
+    ``start:step:stop`` range, where the ``stop`` is inclusive).
+
+    :arg r:   String containing MATLAB_style range.
+    :returns: List of integers in the fully expanded range.
+    """
+    elems = [int(e) for e in r.split(':')]
+
+    if len(elems) == 3:
+        start, step, stop = elems
+        if   step > 0: stop += 1
+        elif step < 0: stop -= 1
+
+    elif len(elems) == 2:
+        start, stop  = elems
+        stop        += 1
+        step         = 1
+    elif len(elems) == 1:
+        start = elems[0]
+        stop  = start + 1
+        step  = 1
+    else:
+        raise ValueError('Invalid range string: {}'.format(r))
+
+    return list(range(start, stop, step))
 
 
 
