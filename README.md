@@ -101,6 +101,47 @@ Create a directory structure for placing all of the code
 ```
 
 ```bash
+cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
+source ukb_venv/bin/activate
+python ./scripts/main.py \
+  --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
+  --stage='decrypt'
+
+python ./scripts/main.py \
+  --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
+  --stage='convert'
+  
+python ./scripts/main.py \
+    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
+    --stage='make_bulk_list' \
+    --bulk-field='rfmri_full_25:25750'  \
+    --bulk-field='rfmri_full_100:25751'  \
+    --bulk-field='rfmri_part_25:25752'  \
+    --bulk-field='rfmri_part_100:25753'  \
+    --bulk-field='rfmri_rsfa_25:25754'  \
+    --bulk-field='rfmri_rsfa_100:25755'  
+  
+python ./scripts/main.py \
+    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
+    --stage='download_bulk' \
+    --bulk-field='rfmri_full_25:25750'  \
+    --bulk-field='rfmri_full_100:25751'  \
+    --bulk-field='rfmri_part_25:25752'  \
+    --bulk-field='rfmri_part_100:25753'  \
+    --bulk-field='rfmri_rsfa_25:25754'  \
+    --bulk-field='rfmri_rsfa_100:25755'  
+  
+python ./scripts/main.py \
+    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
+    --stage='bulk_to_csv' \
+    --bulk-field='rfmri_full_25:25750'  \
+    --bulk-field='rfmri_full_100:25751'  \
+    --bulk-field='rfmri_part_25:25752'  \
+    --bulk-field='rfmri_part_100:25753'  \
+    --bulk-field='rfmri_rsfa_25:25754'  \
+    --bulk-field='rfmri_rsfa_100:25755'  
+  
+  
 # Example command (obviously, define $repo_dir variable yourself)
 cd ${repo_dir}
 singularity run simons_ukb_aging_pipeline \
