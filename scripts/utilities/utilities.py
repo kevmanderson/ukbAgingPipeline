@@ -1,11 +1,14 @@
 #!/bin/python
 
 import os
-import subprocess
 import sys
+from functools import reduce
+import subprocess
 import itertools
+import logging
+import warnings
 
-
+log = logging.getLogger('ukb')
 
 def read_funpack_categories(cat_file):
     '''Read a funpack formatted category.tsv file'''
@@ -22,33 +25,43 @@ def read_funpack_categories(cat_file):
     return parsed_fields
 
 
-def write_cmd(cmd, write_file, print_path=False):
+def get_ukbenc_header(ukb_enc):
+    '''Read the first line of the UKB csv file'''
+    log.debug('Read header of UKB csv: {}'.format(ukb_enc))
+    with open(ukb_enc) as f:
+        header = f.readline().replace('\n','')
+    col_headers = header.replace('"', '').split(',')
+    field_arr   = list(set([x.split('-')[0] for x in col_headers]))
+    return field_arr
+
+
+def write_cmd(cmd, write_file):
     '''Write single or multi-line command to file'''
     with open(write_file, 'w') as f:
         f.write(cmd)
-    os.chmod(write_file, 755)
-    if print_path == True:
-        'Writing command: {}'.format(print_path)
+    os.chmod(write_file, 0o0755)
+    log.info('CMD: {}'.format(write_file))
+
 
 def make_symlink(src_path, dest_path):
     '''Symlink file. Remove and recreate if it already exists'''
     if src_path != dest_path:
         if os.path.exists(dest_path):
-            print('Removing previously created symlinked file: {}'.format(dest_path))
+            log.debug('Removing previously created symlinked file: {}'.format(dest_path))
             os.remove(dest_path)
-        print('Symlink: {}'.format(dest_path))
+        log.debug('Symlink: {}'.format(dest_path))
         os.symlink(src_path, dest_path)
     else:
-        print('src file is the same as dest file, continuing.')
+        log.debug('src file is the same as dest file, continuing.')
 
 
 def make_dir(create_path):
     '''Create a path if it doesnt exist, but also print feedback'''
     if not os.path.exists(create_path):
         os.mkdir(create_path)
-        print('Directory created: {}'.format(create_path))
-    else:
-        print('Directory exists: {}'.format(create_path))
+        log.debug('Directory created: {}'.format(create_path))
+    #else:
+    #    log.debug('Directory exists: {}'.format(create_path))
 
 
 def create_directories(root_dir):
