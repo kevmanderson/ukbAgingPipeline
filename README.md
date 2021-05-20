@@ -390,6 +390,15 @@ Some of the neuroimaging phenotypes are not available in the ```*.enc_ukb``` fil
 A) First, create *.bulk files listing the bulk data to download. 
 ```bash
 # harvard
+cd /ncf/sba01/ukbAgingPipeline
+python3 ./scripts/01b_download_bulk.py \
+         --config=/ncf/sba01/ukbAgingPipeline/config.json \
+         --bulk-field='mri_t1_nii:20252'  \
+         --make-bulk-list \
+         --slurm \
+         --slurm_partition='ncf'
+         
+cd /ncf/sba01/ukbAgingPipeline
 python3 ./scripts/01b_download_bulk.py \
          --config=/ncf/sba01/ukbAgingPipeline/config.json \
          --bulk-field='rfmri_full_25:25750'  \

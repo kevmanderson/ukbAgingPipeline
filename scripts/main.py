@@ -57,7 +57,26 @@ def create_parser(interactive=None):
                                   '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410_phesant_visit*_regress.csv',
                                   '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410_phesant_visit*_process.csv']
         args.phesant_visits = '0;1;2;3'
+        return args
 
+    # tmp manual definition of parser arguments
+    elif interactive == 'harvard':
+        parser = argparse.ArgumentParser()
+        args = parser.parse_args()
+        args.base_dir = '/ncf/sba01/simons_aging'
+        args.config = '/ncf/sba01/ukbAgingPipeline/harvard_config.json'
+        args.bulk_field = [['rfmri_full_25:25750'], ['rfmri_full_100:25751'], ['rfmri_part_25:25752'], ['rfmri_part_100:25753'], ['rfmri_rsfa_25:25754'], ['rfmri_rsfa_100:25755']]
+        args.make_bulk_list = True
+        args.download_bulk_data = False
+        args.slurm = True
+        args.stage = 'convert'
+        args.slurm_partition = 'short'
+        args.convert_all_fields = False
+        args.log_file = None
+        args.quiet = False
+        args.noisy = 0
+        args.phesant_data_csv_list = '/ncf/sba01/simons_aging/data/ukb/raw/bulk_25750_2.csv'
+        args.phesant_visits = '0;1;2;3'
         return args
 
     else:
@@ -80,7 +99,7 @@ def create_parser(interactive=None):
         parser.add_argument('--phesant-phenofile', dest='phesant_phenofile', action='append', nargs='+', default=None)
         parser.add_argument('--quiet', '-q', action='store_true', default=False)
         parser.add_argument('--noisy', '-n', action='count', default=0)
-
+        parser.add_argument('--use-enc-ukb', dest='use_enc_ukb', default=None)
         args = parser.parse_args()
         return args
 
@@ -89,6 +108,7 @@ def main(argv=None):
 
     args = create_parser()
     # args = create_parser('yale')
+    # args = create_parser('harvard')
 
     logging.basicConfig(level=logging.DEBUG)
     date = datetime.date.today()
@@ -107,7 +127,7 @@ def main(argv=None):
     utilities.create_directories(root_dir=config_json['base_dir'])
 
     # download UKB utilities if needed
-    get_ukbutils(util_dir=os.path.join(config_json['base_dir'], 'data/ukb/raw'))
+    get_ukbutils(util_dir=os.path.join(config_json['base_dir'], 'data/ukb/external'))
 
     # decrypt the encoded ukb data
     if 'decrypt' == args.stage:
@@ -497,25 +517,6 @@ def download_genetic(config_json, args):
     #rel_fetch = f'''{rel_fetch}{gfetch} rel'''
 
     #./gfetch rel -aukb40501.key
-
-
-
-
-
-
-def convert_cmd(ukbconv, raw_dir, enc_ukb, output_format, field_file=None, out=None):
-    '''Create command to convert ukb data fields'''
-    print(out)
-    if out is not None:
-        o_name = out
-    else:
-        o_name = enc_ukb.replace('.enc_ukb','')
-    decrypt_cmd = f"cd {raw_dir}\n"
-    if field_file is not None:
-        decrypt_cmd = f"{decrypt_cmd}{ukbconv} {enc_ukb} {output_format} -o./{o_name} -i./{field_file}"
-    else:
-        decrypt_cmd = f"{decrypt_cmd}{ukbconv} {enc_ukb} {output_format} -o./{o_name}"
-    return decrypt_cmd
 
 
 

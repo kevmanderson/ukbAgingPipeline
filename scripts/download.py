@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import logging
 
+import utilities.utilities as utilities
 from utilities.utilities import make_symlink
 log = logging.getLogger('ukb')
 
@@ -40,6 +41,21 @@ def decrypt_stage(config_json, args):
             utilities.submit_slurm(utilities.write_slurm(slurm_file=write_file, partition=args.slurm_partition, cmd=decrypt_cmd, jobName=enc_base, stime='6:00:00', nthreads=2))
         else:
             utilities.write_cmd(cmd=decrypt_cmd, write_file='{}.bash'.format(write_file))
+
+
+def convert_cmd(ukbconv, raw_dir, enc_ukb, output_format, field_file=None, out=None):
+    '''Create command to convert ukb data fields'''
+    print(out)
+    if out is not None:
+        o_name = out
+    else:
+        o_name = enc_ukb.replace('.enc_ukb','')
+    decrypt_cmd = f"cd {raw_dir}\n"
+    if field_file is not None:
+        decrypt_cmd = f"{decrypt_cmd}{ukbconv} {enc_ukb} {output_format} -o./{o_name} -i./{field_file}"
+    else:
+        decrypt_cmd = f"{decrypt_cmd}{ukbconv} {enc_ukb} {output_format} -o./{o_name}"
+    return decrypt_cmd
 
 
 def convert_stage(config_json, args):
@@ -109,22 +125,29 @@ def make_bulk_subj_list(config_json, args):
 
         # create bulk output directory if it doesnt exist
         bulk_out_dir = os.path.join(bulk_dir, bulk_name)
-        make_dir(bulk_out_dir)
+        utilities.make_dir(bulk_out_dir)
+
+        enc_ukb_use = args.use_enc_ukb
+        ukb_enc_src = os.path.join(raw_dir, enc_ukb_use)
+        ukb_enc_dest = os.path.join(bulk_out_dir, enc_ukb_use)
+        make_symlink(ukb_enc_src, ukb_enc_dest)
 
         # there are often more than one data bucket, so check to see which one contains the bulk id of interest
-        for ukb_enc_l in config_json['ukb_encs']:
-            # path to the converted ukb csv file
-            enc_base     = ukb_enc_l['ukb_enc'].split('/')[-1].replace('.enc', '')
-            ukb_enc      = os.path.join(raw_dir, '{}.csv'.format(enc_base))
-            ukb_hdr_cols = utilities.get_ukbenc_header(ukb_enc)
+        old = False
+        if old == True:
+            for ukb_enc_l in config_json['ukb_encs']:
+                # path to the converted ukb csv file
+                enc_base     = ukb_enc_l['ukb_enc'].split('/')[-1].replace('.enc', '')
+                ukb_enc      = os.path.join(raw_dir, '{}.csv'.format(enc_base))
+                ukb_hdr_cols = utilities.get_ukbenc_header(ukb_enc)
 
-            # if bulk id is in this basket
-            if bulk_id in ukb_hdr_cols:
-                log.debug('BULK ID ("{}") is in BUCKET ("{}")'.format(bulk_id, enc_base))
-                enc_ukb_use  = '{}.enc_ukb'.format(enc_base)
-                ukb_enc_src  = os.path.join(raw_dir, enc_ukb_use)
-                ukb_enc_dest = os.path.join(bulk_out_dir, enc_ukb_use)
-                make_symlink(ukb_enc_src, ukb_enc_dest)
+                # if bulk id is in this basket
+                if bulk_id in ukb_hdr_cols:
+                    log.debug('BULK ID ("{}") is in BUCKET ("{}")'.format(bulk_id, enc_base))
+                    enc_ukb_use  = '{}.enc_ukb'.format(enc_base)
+                    ukb_enc_src  = os.path.join(raw_dir, enc_ukb_use)
+                    ukb_enc_dest = os.path.join(bulk_out_dir, enc_ukb_use)
+                    make_symlink(ukb_enc_src, ukb_enc_dest)
 
         # build command for slurm submission
         convert_cmd  = 'cd {}'.format(bulk_out_dir)
@@ -176,10 +199,14 @@ def download_bulk_stage(config_json, args):
 
         # read file with subjects to pull
         bulk_file = os.path.join(bulk_out_dir, '{}.bulk'.format(bulk_id))
-        bulk_df = pd.read_csv(bulk_file, header=None, delim_whitespace=True)
+        bulk_df   = pd.read_csv(bulk_file, header=None, delim_whitespace=True)
         downloaded_paths  = glob.glob(os.path.join(bulk_out_dir, '*{}*'.format(bulk_id)))
         downloaded_files  = set([x.split('/')[-1] for x in downloaded_paths])
-        total_files       = ['{}_{}.txt'.format(i[0], i[1]) for i in zip(bulk_df[0], bulk_df[1])]
+        if len(downloaded_files) > 0:
+            append = '{}'.format(list(downloaded_files)[0].split('.')[1])
+        else:
+            append = 'txt'
+        total_files       = ['{}_{}.{}'.format(i[0], i[1], append) for i in zip(bulk_df[0], bulk_df[1])]
         files_to_download = list(set(total_files) - set(downloaded_files))
 
         log.debug('Reading bulk subjects: {}'.format(bulk_file))
@@ -193,33 +220,29 @@ def download_bulk_stage(config_json, args):
             bulk_download_df   = bulk_df.loc[bulk_df[0].astype(str).isin(subs_to_download)]
             bulk_download_df.to_csv(download_bulk_file, sep='\t', header=None, index=None)
 
+            fetch_cmd = f'''cd {bulk_out_dir}'''
+            slurm_file = os.path.join(write_dir, 'download_bulk_id{}_download_all.bash'.format(bulk_id))
+
+            chunk_size = 1000
             start = 1
             nrows = bulk_download_df.shape[0]
             job_array = []
             while start < nrows:
-                print(start)
-                slurm_file = os.path.join(write_dir, 'download_bulk_id{}_s{}.bash'.format(bulk_id, start))
+                #slurm_file = os.path.join(write_dir, 'download_bulk_id{}_s{}.bash'.format(bulk_id, start))
                 job_array.append(slurm_file)
 
                 # fetch command
-                fetch_cmd = f'''cd {bulk_out_dir}'''
-                fetch_cmd = f'''{fetch_cmd}\n\n./ukbfetch \\\n {'-b./{}_use.bulk'.format(bulk_id)} \\\n -a./{key_file} \\\n -s{start} -m5000'''
-                start = start + 5000
+                #fetch_cmd = f'''{fetch_cmd}\n\n./ukbfetch \\\n {'-b./{}_use.bulk'.format(bulk_id)} \\\n -a./{key_file} \\\n -s{start} -m{chunk_size}'''
+                fetch_cmd = f'''{fetch_cmd}\n./ukbfetch {'-b./{}_use.bulk'.format(bulk_id)} -a./{key_file} -s{start} -m{chunk_size}'''
+                start = start + chunk_size
 
-                if args.slurm == True:
-                    slurm_path = writeSlurm(slurm_file, slurm_partition, fetch_cmd, str(start), stime='6:00:00', n_gpu=None,
-                                            nthreads=2, mem='8G')
-                    print(slurm_path)
-                    job_id = submitSlurm(slurm_path)
-
-                else:
-                    utilities.write_cmd(cmd=fetch_cmd, write_file=slurm_file)
-
-
-                    # write script to file
-                    with open(slurm_file, 'w') as f:
-                        f.write(fetch_cmd)
-                    os.system('chmod 770 {}'.format(slurm_file))
+            if args.slurm == True:
+                slurm_path = writeSlurm(slurm_file, slurm_partition, fetch_cmd, str(start), stime='6:00:00', n_gpu=None,
+                                        nthreads=2, mem='8G')
+                print(slurm_path)
+                job_id = submitSlurm(slurm_path)
+            else:
+                utilities.write_cmd(cmd=fetch_cmd, write_file=slurm_file)
 
 
 def get_ukbutils(util_dir):
