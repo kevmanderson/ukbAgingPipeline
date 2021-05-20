@@ -136,7 +136,7 @@ python ./scripts/main.py \
   --stage='decrypt'
 ```
 
-#### i/o
+#### input/output
 ```bash
 # Example Input: 
 ${repo_dir}/data/ukb/raw/ukb40501.enc
@@ -157,7 +157,7 @@ python ./scripts/main.py \
   --stage='convert'
 ```  
 
-#### i/o
+#### input/output
 ```bash
 # Example Input: 
 ${repo_dir}/data/ukb/raw/ukb40501.enc_ukb
@@ -166,7 +166,6 @@ ${repo_dir}/data/ukb/raw/ukb40501.enc_ukb
 ${repo_dir}/data/ukb/raw/ukb40501.r
 ${repo_dir}/data/ukb/raw/ukb40501.txt
 ${repo_dir}/data/ukb/raw/ukb40501.csv
-
 ```
 
 ### Download Bulk Data
@@ -184,6 +183,11 @@ python ./scripts/main.py \
     --bulk-field='rfmri_part_100:25753'  \
     --bulk-field='rfmri_rsfa_25:25754'  \
     --bulk-field='rfmri_rsfa_100:25755'  
+```
+
+#### output
+```bash
+${repo_dir}/data/ukb/bulk/rfmri_full_25/25750.bulk
 ```
 
 #### do the download 
