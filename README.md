@@ -10,8 +10,14 @@ It documents how we process UK Biobank data for use in a related interactive bro
 
 | Stage | Link | Explanation |
 | ------------- | ------------- | ------------- |
-| Installation | [jump to](#installation) |  How to install this repository | 
-| Configuration | [jump to](#required-configuration-file) | Configuration file with required code and data paths | 
+| Installation | [details](#installation) |  How to install this repository | 
+| Configuration | [details](#required-configuration-file) | Configuration file with required code and data paths | 
+| Directory Structure | [details](#directory-structure) | Create project directories that will be populated with data  | 
+| Decrypt UKB Data | [details](#decrypt-ukb-data) | Decrypt `ukb*.enc` to `ukb*.enc_ukb` format | 
+| Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
+| Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
+
+
 
 ### What This Repo Does:
 
@@ -98,7 +104,7 @@ If you're using Docker, just replace "singularity run" with "docker run".
 
 ---
 
-### Step 0: Prepare Directories
+### Directory Structure
 
 Create a directory structure for placing all of the code 
 ```
@@ -118,17 +124,30 @@ Create a directory structure for placing all of the code
 
 ```bash
 
+
+### Decrypt UKB Data
+
+```bash
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
 
 python ./scripts/main.py \
   --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
   --stage='decrypt'
+```
+
+
+### Convert UKB Data
+
+```bash
+cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
+source ukb_venv/bin/activate
 
 python ./scripts/main.py \
   --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
   --stage='convert'
-  
+```  
+
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='make_bulk_list' \
