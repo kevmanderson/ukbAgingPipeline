@@ -18,7 +18,7 @@ It documents how we process UK Biobank data for use in a related interactive bro
 | Download Bulk MRI Data | [details](#download-bulk-data) | Bulk data download requires 3 sequential steps | 
 | PHESANT Pipeline | [details](#phesant-pipeline) | Bulk data download requires 3 sequential steps | 
 
- Make Bulk Data Download Lists
+
 
 
 ### What This Repo Does:
@@ -124,11 +124,9 @@ Create a directory structure for placing all of the code
               └─── imputed
 ```
 
-```bash
 
 
 ### Decrypt UKB Data
-
 ```bash
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
@@ -136,6 +134,15 @@ source ukb_venv/bin/activate
 python ./scripts/main.py \
   --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
   --stage='decrypt'
+```
+
+
+```bash
+# Example Input: 
+${repo_dir}/data/ukb/raw/ukb40501.enc
+
+# Example Output: 
+${repo_dir}/data/ukb/raw/ukb40501.enc_ukb
 ```
 
 
@@ -242,6 +249,12 @@ done
 ```
 
 
+#### run PHESANT
+
+```bash
+cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
+source ukb_venv/bin/activate
+
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='run_phesant' \
@@ -252,8 +265,12 @@ python ./scripts/main.py \
     --phesant-phenofile='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410_phesant_visit*_process.csv' \
     --slurm \
     --slurm_partition='short'
-
+```
     
+
+
+
+
 # Example command (obviously, define $repo_dir variable yourself)
 cd ${repo_dir}
 singularity run simons_ukb_aging_pipeline \
