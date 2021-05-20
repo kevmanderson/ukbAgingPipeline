@@ -187,6 +187,7 @@ python ./scripts/main.py \
 
 #### output
 ```bash
+# Example Output: 
 ${repo_dir}/data/ukb/bulk/rfmri_full_25/25750.bulk
 ```
 
@@ -205,6 +206,16 @@ python ./scripts/main.py \
     --bulk-field='rfmri_part_100:25753'  \
     --bulk-field='rfmri_rsfa_25:25754'  \
     --bulk-field='rfmri_rsfa_100:25755'  
+```
+
+#### input/output
+```bash
+# Example Input:
+${repo_dir}/data/ukb/bulk/rfmri_full_25/25750.bulk
+# Example Output: 
+${repo_dir}/data/ukb/bulk/rfmri_full_25/${ID1}_25750_2_0.txt
+${repo_dir}/data/ukb/bulk/rfmri_full_25/${ID2}_25750_2_0.txt
+${repo_dir}/data/ukb/bulk/rfmri_full_25/${ID3}_25750_2_0.txt
 ```
 
 #### compile downloaded data 
