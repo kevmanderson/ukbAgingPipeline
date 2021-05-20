@@ -8,14 +8,14 @@ It documents how we process UK Biobank data for use in a related interactive bro
 
 ### Table of Contents
 
-| Stage | Process | Link | Explanation |
-| ------------- | ------------- | ------------- | ------------- |
-| 00 | Installation | [details](#installation) |  How to install this repository | 
-| 01  | Configuration | [details](#required-configuration-file) | Configuration file with required code and data paths | 
-| 01 | Directory Structure | [details](#directory-structure) | Create project directories that will be populated with data  | 
-| 02 | Decrypt UKB Data | [details](#decrypt-ukb-data) | Decrypt `ukb*.enc` to `ukb*.enc_ukb` format | 
-| 02 | Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
-| 02 | Bulk Data Lists | [details](#download-bulk-data) | Queries `ukb*.enc_ukb` and creates lists of bulk data files for downloading | 
+| Process | Link | Explanation |
+| ------------- | ------------- | ------------- |
+| Installation | [details](#installation) |  How to install this repository | 
+| Configuration | [details](#required-configuration-file) | Configuration file with required code and data paths | 
+| Directory Structure | [details](#directory-structure) | Create project directories that will be populated with data  | 
+| Decrypt UKB Data | [details](#decrypt-ukb-data) | Decrypt `ukb*.enc` to `ukb*.enc_ukb` format | 
+| Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
+| Download Bulk MRI Data | [details](#download-bulk-data) | Bulk data download requires 3 sequential steps | 
 
  Make Bulk Data Download Lists
 
