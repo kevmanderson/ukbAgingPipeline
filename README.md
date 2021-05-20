@@ -167,7 +167,16 @@ ${repo_dir}/data/ukb/raw/ukb40501.csv
 
 ### Download Bulk Data
 
+These stage will download bulk fields. We document downloads for RSFC/RSFA data, but this works equally well for any bulk UKB field. 
+
+Acquiring the data requires 3 sequantial steps:  
+(1) PREP:     Make download lists of available data  
+(2) DOWNLOAD: Download individual bulk fields  
+(3) FORMAT:   Compile individual files into single csv dataframe
+
+**01: PREP**
 ```bash
+# Example command
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
 
@@ -189,9 +198,10 @@ ${repo_dir}/data/ukb/bulk/rfmri_full_25/25750.bulk
 ```
 
 
-#### do the download 
-
+**02: DOWNLOAD**
 ```bash
+# Example command
+
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
 
@@ -217,8 +227,7 @@ ${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id2}_25750_2_0.txt
 ${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id3}_25750_2_0.txt
 ```
 
-#### compile downloaded data 
-
+**03: FORMAT**
 ```bash
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
