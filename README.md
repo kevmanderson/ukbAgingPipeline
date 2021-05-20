@@ -212,10 +212,11 @@ python ./scripts/main.py \
 ```bash
 # Example Input:
 ${repo_dir}/data/ukb/bulk/rfmri_full_25/25750.bulk
+
 # Example Output: 
-${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id}_25750_2_0.txt
-${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id}_25750_2_0.txt
-${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id}_25750_2_0.txt
+${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id1}_25750_2_0.txt
+${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id2}_25750_2_0.txt
+${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id3}_25750_2_0.txt
 ```
 
 #### compile downloaded data 
@@ -235,6 +236,17 @@ python ./scripts/main.py \
     --bulk-field='rfmri_rsfa_100:25755'  
 ```
   
+#### input/output
+```bash
+# Example Input: 
+${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id1}_25750_2_0.txt
+${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id2}_25750_2_0.txt
+${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id3}_25750_2_0.txt
+
+# Example Output:
+${repo_dir}/data/ukb/bulk/rfmri_full_25/25750_dataframe.csv
+```
+
 ### PHESANT Pipeline
 
 #### format data for phesant
