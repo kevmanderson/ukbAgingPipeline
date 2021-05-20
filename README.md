@@ -136,6 +136,7 @@ ${repo_dir}/data/ukb/raw/ukb40501.enc
 ${repo_dir}/data/ukb/raw/ukb40501.enc_ukb
 ```
 ---
+---
 
 ### Convert UKB Data
 
@@ -161,6 +162,7 @@ ${repo_dir}/data/ukb/raw/ukb40501.r
 ${repo_dir}/data/ukb/raw/ukb40501.txt
 ${repo_dir}/data/ukb/raw/ukb40501.csv
 ```
+---
 ---
 
 ### Download Bulk Data
