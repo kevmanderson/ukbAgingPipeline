@@ -16,6 +16,7 @@ It documents how we process UK Biobank data for use in a related interactive bro
 | Decrypt UKB Data | [details](#decrypt-ukb-data) | Decrypt `ukb*.enc` to `ukb*.enc_ukb` format | 
 | Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
 | Download Bulk MRI Data | [details](#download-bulk-data) | Bulk data download requires 3 sequential steps | 
+| PHESANT Pipeline | [details](#phesant-pipeline) | Bulk data download requires 3 sequential steps | 
 
  Make Bulk Data Download Lists
 
@@ -181,9 +182,13 @@ python ./scripts/main.py \
     --bulk-field='rfmri_part_100:25753'  \
     --bulk-field='rfmri_rsfa_25:25754'  \
     --bulk-field='rfmri_rsfa_100:25755'  
- ```
+```
 
 #### compile downloaded data 
+
+```bash
+cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
+source ukb_venv/bin/activate
 
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
@@ -194,22 +199,37 @@ python ./scripts/main.py \
     --bulk-field='rfmri_part_100:25753'  \
     --bulk-field='rfmri_rsfa_25:25754'  \
     --bulk-field='rfmri_rsfa_100:25755'  
+```
   
-  
+### PHESANT Pipeline
+
+#### format data for phesant
+
+```bash
+cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
+source ukb_venv/bin/activate
+
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='prep_data_for_phesant' \
     --phesant-covar-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_covars.csv' \
     --phesant-data-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.csv' 
-
+    
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='prep_data_for_phesant' \
     --phesant-covar-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_covars.csv' \
     --phesant-data-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410.csv' 
 
+```
 
-# RSFA & RSFC data
+#### If you are running this with bulk MRI data
+#### RSFA & RSFC data
+
+```bash
+cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
+source ukb_venv/bin/activate
+
 array=( bulk_25750_2 bulk_25750_3 bulk_25751_2 bulk_25751_3 bulk_25752_2 bulk_25752_3 bulk_25753_2 bulk_25753_3 bulk_25754_2 bulk_25754_3 bulk_25755_2 bulk_25755_3 ) 
 for var in "${array[@]}"
 do
@@ -219,6 +239,8 @@ python ./scripts/main.py \
     --phesant-covar-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_covars.csv' \
     --phesant-data-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/'${var}'.csv' 
 done
+```
+
 
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
