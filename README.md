@@ -6,6 +6,11 @@ This repository was created in the Buckner Laboratory.
 
 It documents how we process UK Biobank data for use in a related interactive browser [insert link]
 
+### Table of Contents
+
+| Stage | Link | Explanation |
+| ------------- | ------------- | ------------- |
+| Installation | [jump to](#installation) | 
 
 ### What This Repo Does:
 
