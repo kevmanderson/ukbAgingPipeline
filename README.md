@@ -213,9 +213,9 @@ python ./scripts/main.py \
 # Example Input:
 ${repo_dir}/data/ukb/bulk/rfmri_full_25/25750.bulk
 # Example Output: 
-${repo_dir}/data/ukb/bulk/rfmri_full_25/${ID1}_25750_2_0.txt
-${repo_dir}/data/ukb/bulk/rfmri_full_25/${ID2}_25750_2_0.txt
-${repo_dir}/data/ukb/bulk/rfmri_full_25/${ID3}_25750_2_0.txt
+${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id}_25750_2_0.txt
+${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id}_25750_2_0.txt
+${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id}_25750_2_0.txt
 ```
 
 #### compile downloaded data 
