@@ -12,7 +12,7 @@ It documents how we process UK Biobank data for use in a related interactive bro
 | ------------- | ------------- | ------------- | ------------- |
 | 00 | Installation | [details](#installation) |  How to install this repository | 
 | 01  | Configuration | [details](#required-configuration-file) | Configuration file with required code and data paths | 
-| 01 | Directory Structure | [details](#directory-structure) | Create project directories that will be populated with data  | 
+| 01 | Dir Structure | [details](#directory-structure) | Create project directories that will be populated with data  | 
 | 02 | Decrypt UKB Data | [details](#decrypt-ukb-data) | Decrypt `ukb*.enc` to `ukb*.enc_ukb` format | 
 | 02 | Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
 | 02 | Bulk Data Lists | [details](#make-bulk-data-download-lists) | Queries `ukb*.enc_ukb` and creates lists of bulk data files for downloading | 
