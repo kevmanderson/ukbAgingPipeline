@@ -126,14 +126,13 @@ python ./scripts/main.py \
   --stage='decrypt'
 ```
 
-:::: input/output
-```bash
-# Example Input: 
-${repo_dir}/data/ukb/raw/ukb40501.enc
+**input/output**
+> # Example Input: 
+> ${repo_dir}/data/ukb/raw/ukb40501.enc
 
 # Example Output: 
 ${repo_dir}/data/ukb/raw/ukb40501.enc_ukb
-```
+
 
 
 ### Convert UKB Data
