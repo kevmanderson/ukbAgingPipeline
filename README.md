@@ -108,7 +108,7 @@ Create a directory structure for placing downloading and populating data.
               └─── genotyped
               └─── imputed
 ```
-
+---
 
 
 ### Decrypt UKB Data
@@ -135,7 +135,7 @@ ${repo_dir}/data/ukb/raw/ukb40501.enc
 # Example Output: 
 ${repo_dir}/data/ukb/raw/ukb40501.enc_ukb
 ```
-
+---
 
 ### Convert UKB Data
 
@@ -161,6 +161,7 @@ ${repo_dir}/data/ukb/raw/ukb40501.r
 ${repo_dir}/data/ukb/raw/ukb40501.txt
 ${repo_dir}/data/ukb/raw/ukb40501.csv
 ```
+---
 
 ### Download Bulk Data
 
@@ -184,6 +185,7 @@ python ./scripts/main.py \
 # Example Output: 
 ${repo_dir}/data/ukb/bulk/rfmri_full_25/25750.bulk
 ```
+
 
 #### do the download 
 
@@ -240,6 +242,8 @@ ${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id3}_25750_2_0.txt
 # Example Output:
 ${repo_dir}/data/ukb/raw/rfmri_full_25/bulk_25750_2_0.csv
 ```
+---
+
 
 
 ### PHESANT Pipeline
