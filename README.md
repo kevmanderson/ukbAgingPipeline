@@ -11,7 +11,7 @@ It documents how we process UK Biobank data for use in a related interactive bro
 | Stage | Link | Explanation |
 | ------------- | ------------- | ------------- |
 | Installation | [jump to](#installation) |  How to install this repository | 
-| Configuration | [jump to](#installation) | Configuration file with required code and data paths. | 
+| Configuration | [jump to](#required-configuration-file) | Configuration file with required code and data paths | 
 
 ### What This Repo Does:
 
@@ -57,7 +57,7 @@ docker pull kevinanderson/buckner-lab-ukb-pipeline
 ```
 
 
-### Set-up Your Configuration File
+### Required Configuration File
 ```json
 [
   {
