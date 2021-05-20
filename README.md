@@ -6,6 +6,9 @@ This repository was created in the Buckner Laboratory.
 
 It documents how we process UK Biobank data for use in a related interactive browser [insert link]
 
+Running this code will require a bit of unavoidable babysitting, since most stages need to be run sequentially. For instance, bulk MRI data has to first be downloaded from the UKB before it can be combined and processed. 
+
+
 ### Table of Contents
 
 | Process | Link | Explanation |
@@ -20,19 +23,6 @@ It documents how we process UK Biobank data for use in a related interactive bro
 
 
 
-
-### What This Repo Does:
-
-1. Converts encoded UKB data into usable formats. 
-2. Downloads and compiles "Bulk" UKB data.
-3. Performs a modified PHESANT phenome-scan quantifying **AGE** effects. 
-4. Compiles UK Biobank variable metadata.
-5. Dumps all data into an SQL database. 
-
-
-Pipeline components have been containerized wherever possible. 
-
-Running this code will require a bit of unavoidable babysitting given dependencies between steps. For instance, bulk MRI data has to first be downloaded from the UKB before it can be combined and processed. 
 
 ### Installation 
 
@@ -92,23 +82,18 @@ docker pull kevinanderson/buckner-lab-ukb-pipeline
   
 | Variable | Explanation |
 | ------------- | ------------- |
-| base_dir | Path to the primary project directory where results will be downloaded/written. The code will handle directory creation. This path is ideally empty, but its (probably) OK if not. Path should have a health (>100GB) amount of disk storage. |
+| base_dir | Path to the primary project directory where results will be downloaded/written. The code will handle directory creation. This path is empty, but its (probably) OK if not. Path should have a healthy (>100GB) amount of disk storage. |
 | repo_dir | Top-level path to the this code repository (i.e. where ```git clone``` put all the code). Should be different than ```base_dir```.  |
 | ukb_encs | List of ukb_enc files and their keys. It's preferred to merge your UKB data baskets into a single enc file, but this can take time. |
 | ukb_enc | Full path to your raw UK Biobank data bucket, downloaded from the UKB AMS portal. I suggest merging all your data into a single bucket using the UKB AMS tools...it will make your life easier in the long run anyways. | 
-| ukb_key | Full path to your UKB key, required for decrypting the encoded ukb data | 
-
----
-
-*N.B.* All example commands are given in Singularity. 
-
-If you're using Docker, just replace "singularity run" with "docker run". 
+| ukb_key | Full path to your UKB key, required for decrypting the encoded ukb data |
 
 ---
 
 ### Directory Structure
 
-Create a directory structure for placing all of the code 
+Create a directory structure for placing downloading and populating data.
+
 ```
 . "base_dir"
 └─── external
@@ -127,6 +112,11 @@ Create a directory structure for placing all of the code
 
 
 ### Decrypt UKB Data
+
+The first step is to decrypt the *enc files provided by the UK Biobank using the ```ukbunpack``` utility
+
+See the [UKB Documentation](https://biobank.ctsu.ox.ac.uk/~bbdatan/Accessing_UKB_data_v2.3.pdf) for details. 
+
 ```bash
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
@@ -136,7 +126,7 @@ python ./scripts/main.py \
   --stage='decrypt'
 ```
 
-#### input/output
+`input/output`
 ```bash
 # Example Input: 
 ${repo_dir}/data/ukb/raw/ukb40501.enc
@@ -157,7 +147,7 @@ python ./scripts/main.py \
   --stage='convert'
 ```  
 
-#### input/output
+`input/output`
 ```bash
 # Example Input: 
 ${repo_dir}/data/ukb/raw/ukb40501.enc_ukb
@@ -244,12 +234,13 @@ ${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id2}_25750_2_0.txt
 ${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id3}_25750_2_0.txt
 
 # Example Output:
-${repo_dir}/data/ukb/bulk/rfmri_full_25/25750_dataframe.csv
+${repo_dir}/data/ukb/raw/rfmri_full_25/bulk_25750_2_0.csv
 ```
+
 
 ### PHESANT Pipeline
 
-#### format data for phesant
+#### Format data for PHESANT
 
 ```bash
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
