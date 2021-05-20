@@ -101,8 +101,10 @@ Create a directory structure for placing all of the code
 ```
 
 ```bash
+
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
+
 python ./scripts/main.py \
   --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
   --stage='decrypt'
@@ -142,6 +144,42 @@ python ./scripts/main.py \
     --bulk-field='rfmri_rsfa_100:25755'  
   
   
+python ./scripts/main.py \
+    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
+    --stage='prep_data_for_phesant' \
+    --phesant-covar-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_covars.csv' \
+    --phesant-data-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.csv' 
+
+python ./scripts/main.py \
+    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
+    --stage='prep_data_for_phesant' \
+    --phesant-covar-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_covars.csv' \
+    --phesant-data-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410.csv' 
+
+
+# RSFA & RSFC data
+array=( bulk_25750_2 bulk_25750_3 bulk_25751_2 bulk_25751_3 bulk_25752_2 bulk_25752_3 bulk_25753_2 bulk_25753_3 bulk_25754_2 bulk_25754_3 bulk_25755_2 bulk_25755_3 ) 
+for var in "${array[@]}"
+do
+python ./scripts/main.py \
+    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
+    --stage='prep_data_for_phesant' \
+    --phesant-covar-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_covars.csv' \
+    --phesant-data-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/'${var}'.csv' 
+done
+
+python ./scripts/main.py \
+    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
+    --stage='run_phesant' \
+    --phesant-visits='0;1;2;3' \
+    --phesant-phenofile='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_visit*_regress.csv' \
+    --phesant-phenofile='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_visit*_process.csv' \
+    --phesant-phenofile='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410_phesant_visit*_regress.csv' \
+    --phesant-phenofile='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410_phesant_visit*_process.csv' \
+    --slurm \
+    --slurm_partition='short'
+
+    
 # Example command (obviously, define $repo_dir variable yourself)
 cd ${repo_dir}
 singularity run simons_ukb_aging_pipeline \

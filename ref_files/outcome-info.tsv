@@ -1460,41 +1460,20 @@ FieldID	TRAIT_OF_INTEREST	EXCLUDED	CAT_MULT_INDICATOR_FIELDS	CAT_SINGLE_TO_CAT_M
 22507							Online follow-up > Work environment > Medical information	132	Age of stopping smoking	Integer
 22508						946	Online follow-up > Work environment > Medical information	132	Amount of tobacco currently smoked	Integer
 22599							Online follow-up > Work environment > Employment history	130	Number of jobs held	Integer
-22601			22599	YES		497	Online follow-up > Work environment > Employment history	130	Job coding	Categorical single
 22602							Online follow-up > Work environment > Employment history	130	Year job started	Integer
 22603						100698	Online follow-up > Work environment > Employment history	130	Year job ended	Integer
-22604			22599	YES		494	Online follow-up > Work environment > Employment history	130	Work hours - lumped category	Categorical single
 22605							Online follow-up > Work environment > Employment history	130	Work hours per week - exact value	Continuous
-22606			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace very noisy	Categorical single
-22607			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace very cold	Categorical single
-22608			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace very hot	Categorical single
-22609			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace very dusty	Categorical single
-22610			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace full of chemical or other fumes	Categorical single
-22611			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace had a lot of cigarette smoke from other people smoking	Categorical single
-22612			22599	YES		493	Online follow-up > Work environment > Employment history	130	Worked with materials containing asbestos	Categorical single
-22613			22599	YES		493	Online follow-up > Work environment > Employment history	130	"Worked with paints, thinners or glues"	Categorical single
-22614			22599	YES		493	Online follow-up > Work environment > Employment history	130	Worked with pesticides	Categorical single
-22615			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace had a lot of diesel exhaust	Categorical single
-22616			22599	YES		7	Online follow-up > Work environment > Employment history	130	Breathing problems during period of job	Categorical single
-22617			22599	YES		2	Online follow-up > Work environment > Employment history	130	Job code - historical	Categorical single
-22618			22599	YES		7	Online follow-up > Work environment > Employment history	130	Breathing problems improved/stopped away from workplace or on holiday	Categorical single
-22619			22599	YES		7	Online follow-up > Work environment > Employment history	130	Breathing problems responsible for leaving job	Categorical single
-22620			22599	YES		7	Online follow-up > Work environment > Employment history	130	Job involved shift work	Categorical single
-22630			22599	YES		489	Online follow-up > Work environment > Employment history	130	Day shifts worked	Categorical single
 22631							Online follow-up > Work environment > Employment history	130	Period spent working day shifts	Continuous
-22640			22599	YES		489	Online follow-up > Work environment > Employment history	130	Mixture of day and night shifts worked	Categorical single
 22641						488	Online follow-up > Work environment > Employment history	130	Period spent working mix of day and night shifts	Continuous
 22642							Online follow-up > Work environment > Employment history	130	Usual length of each night shift during mixed shift periods	Integer
 22643							Online follow-up > Work environment > Employment history	130	Number of night shifts worked monthly during mixed shift periods	Integer
 22644						487	Online follow-up > Work environment > Employment history	130	Consecutive night shifts during mixed shift periods	Integer
 22645						487	Online follow-up > Work environment > Employment history	130	Rest days during mixed shift periods	Integer
-22650			22599	YES		489	Online follow-up > Work environment > Employment history	130	Night shifts worked	Categorical single
 22651						488	Online follow-up > Work environment > Employment history	130	Period spent working night shifts	Continuous
 22652							Online follow-up > Work environment > Employment history	130	Usual length of each night shift during night shift periods	Integer
 22653							Online follow-up > Work environment > Employment history	130	Number of night shifts worked monthly during night shift periods	Integer
 22654						487	Online follow-up > Work environment > Employment history	130	Consecutive night shifts during night shift periods	Integer
 22655						487	Online follow-up > Work environment > Employment history	130	Rest days during night shift periods	Integer
-22660			22599	YES		486	Online follow-up > Work environment > Employment history	130	Gap coding	Categorical single
 22661							Online follow-up > Work environment > Employment history	130	Number of gap periods	Integer
 22663							Online follow-up > Work environment > Employment history	130	Year gap started	Integer
 22664						100698	Online follow-up > Work environment > Employment history	130	Year gap ended	Integer

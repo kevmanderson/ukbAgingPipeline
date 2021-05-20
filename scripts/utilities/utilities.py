@@ -24,7 +24,6 @@ def read_funpack_categories(cat_file):
 
     return parsed_fields
 
-
 def get_ukbenc_header(ukb_enc):
     '''Read the first line of the UKB csv file'''
     log.debug('Read header of UKB csv: {}'.format(ukb_enc))
