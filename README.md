@@ -12,10 +12,10 @@ It documents how we process UK Biobank data for use in a related interactive bro
 | ------------- | ------------- | ------------- | ------------- |
 | 00 | Installation | [details](#installation) |  How to install this repository | 
 | 01  | Configuration | [details](#required-configuration-file) | Configuration file with required code and data paths | 
-| 01 | Dir Structure | [details](#directory-structure) | Create project directories that will be populated with data  | 
+| 01 | Directory Structure | [details](#directory-structure) | Create project directories that will be populated with data  | 
 | 02 | Decrypt UKB Data | [details](#decrypt-ukb-data) | Decrypt `ukb*.enc` to `ukb*.enc_ukb` format | 
 | 02 | Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
-| 02 | Bulk Data Lists | [details](#make-bulk-data-download-lists) | Queries `ukb*.enc_ukb` and creates lists of bulk data files for downloading | 
+| 02 | Bulk Data Lists | [details](#download-bulk-data) | Queries `ukb*.enc_ukb` and creates lists of bulk data files for downloading | 
 
  Make Bulk Data Download Lists
 
@@ -149,7 +149,7 @@ python ./scripts/main.py \
   --stage='convert'
 ```  
 
-### Make Bulk Data Download Lists
+### Download Bulk Data
 
 ```bash
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
@@ -166,6 +166,11 @@ python ./scripts/main.py \
     --bulk-field='rfmri_rsfa_100:25755'  
 ```
 
+#### do the download 
+
+```bash
+cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
+source ukb_venv/bin/activate
 
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
@@ -176,7 +181,10 @@ python ./scripts/main.py \
     --bulk-field='rfmri_part_100:25753'  \
     --bulk-field='rfmri_rsfa_25:25754'  \
     --bulk-field='rfmri_rsfa_100:25755'  
-  
+ ```
+
+#### compile downloaded data 
+
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='bulk_to_csv' \
