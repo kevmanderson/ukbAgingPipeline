@@ -8,15 +8,16 @@ It documents how we process UK Biobank data for use in a related interactive bro
 
 ### Table of Contents
 
-| Stage | Link | Explanation |
-| ------------- | ------------- | ------------- |
-| Installation | [details](#installation) |  How to install this repository | 
-| Configuration | [details](#required-configuration-file) | Configuration file with required code and data paths | 
-| Directory Structure | [details](#directory-structure) | Create project directories that will be populated with data  | 
-| Decrypt UKB Data | [details](#decrypt-ukb-data) | Decrypt `ukb*.enc` to `ukb*.enc_ukb` format | 
-| Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
-| Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
+| Stage | Process | Link | Explanation |
+| ------------- | ------------- | ------------- | ------------- |
+| Install | Installation | [details](#installation) |  How to install this repository | 
+| Configure  | Configuration | [details](#required-configuration-file) | Configuration file with required code and data paths | 
+| Configure | Directory Structure | [details](#directory-structure) | Create project directories that will be populated with data  | 
+| Download | Decrypt UKB Data | [details](#decrypt-ukb-data) | Decrypt `ukb*.enc` to `ukb*.enc_ukb` format | 
+| Download | Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
+| Download | Bulk Data Lists | [details](#make-bulk-data-download-lists) | Queries `ukb*.enc_ukb` and creates lists of bulk data files for downloading | 
 
+ Make Bulk Data Download Lists
 
 
 ### What This Repo Does:
@@ -148,6 +149,12 @@ python ./scripts/main.py \
   --stage='convert'
 ```  
 
+### Make Bulk Data Download Lists
+
+```bash
+cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
+source ukb_venv/bin/activate
+
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='make_bulk_list' \
@@ -157,7 +164,9 @@ python ./scripts/main.py \
     --bulk-field='rfmri_part_100:25753'  \
     --bulk-field='rfmri_rsfa_25:25754'  \
     --bulk-field='rfmri_rsfa_100:25755'  
-  
+```
+
+
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='download_bulk' \
