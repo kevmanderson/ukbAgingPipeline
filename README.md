@@ -126,7 +126,7 @@ python ./scripts/main.py \
   --stage='decrypt'
 ```
 
-`input/output`
+:::: input/output
 ```bash
 # Example Input: 
 ${repo_dir}/data/ukb/raw/ukb40501.enc
