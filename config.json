@@ -1,13 +1,21 @@
 [
   {
-    "repo_dir": "/ncf/sba01/ukbAgingPipeline",
-    "base_dir": "/ncf/sba01/simons_aging",
-    "ukb_encs" : [{
-      "ukb_enc": "/ncf/sba01/data/ukb/enc_files/ukb45156.enc",
-      "ukb_key": "/ncf/sba01/data/ukb/enc_files/ukb45156.key"
-    },{
-      "ukb_enc": "/ncf/sba01/data/ukb/enc_files/ukb46521.enc",
-      "ukb_key": "/ncf/sba01/data/ukb/enc_files/ukb46521.key"
-    }]
+    "repo_dir": "/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline",
+    "base_dir": "/gpfs/milgram/project/holmes/kma52/buckner_aging",
+    "ukb_encs" : [
+      {
+        "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.enc",
+        "ukb_key": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.key"
+      },
+      {
+        "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410.enc",
+        "ukb_key": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410.key"
+      }],
+    "genotyped_data": "/gpfs/milgram/data/UKB/REPOSITORY/GWAS/NON_IMPUTED/ukb_cal_chr*_v2",
+    "imputed_data": [
+      {
+        "bgen": "/gpfs/milgram/data/UKB/ukb_snp/ukb_imp_chr*_v3",
+        "sample": "/gpfs/milgram/data/UKB/ukb_snp/ukb25163_imp_chr*_v3_s487324"
+      }]
   }
 ]

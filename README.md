@@ -61,6 +61,16 @@ docker pull kevinanderson/buckner-lab-ukb-pipeline
       {
         "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.enc",
         "ukb_key": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.key"
+      },
+      {
+        "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410.enc",
+        "ukb_key": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410.key"
+      }],
+    "genotyped_data": "/gpfs/milgram/data/UKB/REPOSITORY/GWAS/NON_IMPUTED/ukb_cal_chr*_v2",
+    "imputed_data": [
+      {
+        "bgen": "/gpfs/milgram/data/UKB/ukb_snp/ukb_imp_chr*_v3",
+        "sample": "/gpfs/milgram/data/UKB/ukb_snp/ukb25163_imp_chr*_v3_s487324"
       }]
   }
 ]
