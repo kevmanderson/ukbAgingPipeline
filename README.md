@@ -118,6 +118,7 @@ The first step is to decrypt the *enc files provided by the UK Biobank using the
 See the [UKB Documentation](https://biobank.ctsu.ox.ac.uk/~bbdatan/Accessing_UKB_data_v2.3.pdf) for details. 
 
 ```bash
+# Example command
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
 
@@ -127,17 +128,21 @@ python ./scripts/main.py \
 ```
 
 **input/output**
-> ```Example Input: ```  
-> ```${repo_dir}/data/ukb/raw/ukb40501.enc ```  
+```bash
+# Example Input: 
+${repo_dir}/data/ukb/raw/ukb40501.enc
 
 # Example Output: 
 ${repo_dir}/data/ukb/raw/ukb40501.enc_ukb
-
+```
 
 
 ### Convert UKB Data
 
+Once the data buckets have been converted to ```ukb*.enc_ukb```, we will convert from binary to human readable csv files using the ```ukbconv``` command.
+
 ```bash
+# Example command
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
 
