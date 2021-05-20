@@ -127,7 +127,7 @@ python ./scripts/main.py \
 ```
 
 **input/output**
-> Example Input:   
+> ```Example Input: ```  
 > ${repo_dir}/data/ukb/raw/ukb40501.enc
 
 # Example Output: 
