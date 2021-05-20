@@ -157,6 +157,18 @@ python ./scripts/main.py \
   --stage='convert'
 ```  
 
+#### i/o
+```bash
+# Example Input: 
+${repo_dir}/data/ukb/raw/ukb40501.enc_ukb
+
+# Example Output: 
+${repo_dir}/data/ukb/raw/ukb40501.r
+${repo_dir}/data/ukb/raw/ukb40501.txt
+${repo_dir}/data/ukb/raw/ukb40501.csv
+
+```
+
 ### Download Bulk Data
 
 ```bash
