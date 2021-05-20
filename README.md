@@ -10,7 +10,8 @@ It documents how we process UK Biobank data for use in a related interactive bro
 
 | Stage | Link | Explanation |
 | ------------- | ------------- | ------------- |
-| Installation | [jump to](#installation) | 
+| Installation | [jump to](#installation) |  How to install this repository | 
+| Configuration | [jump to](#installation) | Configuration file with required code and data paths. | 
 
 ### What This Repo Does:
 
