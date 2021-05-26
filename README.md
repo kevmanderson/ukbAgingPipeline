@@ -13,14 +13,15 @@ Running this code will require a bit of unavoidable babysitting, since most stag
 
 | | Process | Link | Explanation |
 | ------------- | ------------- | ------------- | ------------- |
-| 1 | Installation | [details](#installation) |  How to install this repository | 
+| 1 | Installation | [details](#installation) |  Instructions to install this repository | 
 | 2 | Configuration | [details](#required-configuration-file) | Configuration file with required data paths | 
 | 3 | Directory Structure | [details](#directory-structure) | Create project directories that will be populated with data  | 
 | 4 | Decrypt UKB Data | [details](#decrypt-ukb-data) | Decrypt `ukb*.enc` to `ukb*.enc_ukb` format | 
-| 5 |Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
+| 5 |Convert UKB Data | [details](#decrypt-ukb-data) | Convert `ukb*.enc_ukb` files to usable csvs and tables | 
 | 6 | Download Bulk MRI Data | [details](#download-bulk-data) | Bulk MRI data download (conducted in 3 sequential steps) | 
 | 7 | PHESANT Pipeline | [details](#phesant-pipeline) | Phenome-wide regression against AGE. PHESANT also minimally preprocesses UKB phenotype data | 
 | 8 | Genetic Pipeline | [details](#genetic-pipeline) | Preprocess UKB SNP data | 
+| 9 | SQL Database | [details](#genetic-pipeline) | Create an SQL database with all phenotype data | 
 
 
 
@@ -58,7 +59,7 @@ docker pull kevinanderson/buckner-lab-ukb-pipeline
 
 ## Required Configuration File
 
-This pipeline requires you to specify some data paths and directories specific to your environment. 
+You must specify some data paths and directories specific to your environment. 
 
 See below for an example: 
 
@@ -98,7 +99,9 @@ See below for an example:
 ---
 ## Directory Structure
 
-Create the directory structure for downloading and processing data.
+The pipeline will automatically create the directory structure needed to download and process data.
+
+This directory tree will be created within the "base_dir" path specified in your configuration. 
 
 ```
 . "base_dir"
