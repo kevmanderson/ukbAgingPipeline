@@ -151,13 +151,6 @@ ${repo_dir}/data/ukb/raw/ukb40501.enc_ukb
 
 Once the data buckets have been converted to ```ukb*.enc_ukb```, we will convert from binary to human readable csv files using the ```ukbconv``` command.
 
-This code separately creates a smaller csv file containing covariates required for PHESANT regression. These UKB fields are:
-* 31 - sex
-* 54 - assessment center
-* 21003 - age at assessment center
-* 22009 - genetic principle components
-
-
 ```bash
 # Example command
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
