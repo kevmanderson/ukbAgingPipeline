@@ -300,32 +300,33 @@ python ./scripts/main.py \
     --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25755_2.csv' \
     --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25755_3.csv'
 
-
-
 ```
 
-If you are running this with bulk RSFA & RSFC data
-
+#### input/output
 ```bash
-cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
-source ukb_venv/bin/activate
+# Example Input: 
+${repo_dir}/data/ukb/raw/ukb40501.csv
 
-# iterate over all the bulk mri filenames
-array=( bulk_25750_2 bulk_25750_3 bulk_25751_2 bulk_25751_3 bulk_25752_2 bulk_25752_3 bulk_25753_2 bulk_25753_3 bulk_25754_2 bulk_25754_3 bulk_25755_2 bulk_25755_3 ) 
-for var in "${array[@]}"
-do
-python ./scripts/main.py \
-    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
-    --stage='prep_data_for_phesant' \
-    --phesant-covar-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_covars.csv' \
-    --phesant-data-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/'${var}'.csv' 
-done
+# Example Output:
+### PHESANT formatted csv data split by UKB visit 
+${repo_dir}/data/ukb/raw/phesant_visit0.csv
+${repo_dir}/data/ukb/raw/phesant_visit1.csv
+${repo_dir}/data/ukb/raw/phesant_visit2.csv
+${repo_dir}/data/ukb/raw/phesant_visit3.csv
+
+### visit specific covariate information
+${repo_dir}/data/ukb/raw/phesant_covar_vis0.csv
+${repo_dir}/data/ukb/raw/phesant_covar_vis1.csv
+${repo_dir}/data/ukb/raw/phesant_covar_vis2.csv
+${repo_dir}/data/ukb/raw/phesant_covar_vis3.csv
+
 ```
-
 
 #### run PHESANT
 
-__01: RUN__
+Once data are prepared, run the PHESANT pipeline. 
+
+__02: RUN__
 ```bash
 # example command
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline

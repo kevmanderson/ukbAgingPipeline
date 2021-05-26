@@ -130,8 +130,6 @@ def prep_data_for_phesant(config_json, args):
 
 
 
-
-
 def run_phesant(config_json, args):
     log.info('RUNNING: STAGE = RUN_PHESANT')
     log.debug(args)
