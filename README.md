@@ -337,11 +337,6 @@ source ukb_venv/bin/activate
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='run_phesant' \
-    --phesant-visits='0;1;2;3' \
-    --phesant-phenofile='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_visit*_regress.csv' \
-    --phesant-phenofile='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_visit*_process.csv' \
-    --phesant-phenofile='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410_phesant_visit*_regress.csv' \
-    --phesant-phenofile='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410_phesant_visit*_process.csv' \
     --slurm \
     --slurm_partition='short'
 ```  
