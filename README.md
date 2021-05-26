@@ -282,11 +282,11 @@ __01: PREPARE__
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
 
-# Run this for each data bucket 
+# This script will automatically format data buckets in your config file
+# You may additionally specify full paths to the bulk MRI csv files
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='prep_data_for_phesant' \
-    --phesant-covar-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_covars.csv' \
     --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25750_2.csv' \
     --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25750_3.csv' \
     --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25751_2.csv' \
@@ -301,12 +301,6 @@ python ./scripts/main.py \
     --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25755_3.csv'
 
 
-# temporary code for second data bucket    
-python ./scripts/main.py \
-    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
-    --stage='prep_data_for_phesant' \
-    --phesant-covar-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_covars.csv' \
-    --phesant-data-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410.csv' 
 
 ```
 
