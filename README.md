@@ -14,12 +14,13 @@ Running this code will require a bit of unavoidable babysitting, since most stag
 | Process | Link | Explanation |
 | ------------- | ------------- | ------------- |
 | Installation | [details](#installation) |  How to install this repository | 
-| Configuration | [details](#required-configuration-file) | Configuration file with required code and data paths | 
+| Configuration | [details](#required-configuration-file) | Configuration file with required data paths | 
 | Directory Structure | [details](#directory-structure) | Create project directories that will be populated with data  | 
 | Decrypt UKB Data | [details](#decrypt-ukb-data) | Decrypt `ukb*.enc` to `ukb*.enc_ukb` format | 
 | Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
 | Download Bulk MRI Data | [details](#download-bulk-data) | Bulk data download requires 3 sequential steps | 
 | PHESANT Pipeline | [details](#phesant-pipeline) | Bulk data download requires 3 sequential steps | 
+| Genetic Pipeline | [details](#phesant-pipeline) | Bulk data download requires 3 sequential steps | 
 
 
 
@@ -55,7 +56,7 @@ docker pull kevinanderson/buckner-lab-ukb-pipeline
 ```
 
 
-### Required Configuration File
+## Required Configuration File
 ```json
 [
   {
@@ -89,8 +90,8 @@ docker pull kevinanderson/buckner-lab-ukb-pipeline
 | ukb_key | Full path to your UKB key, required for decrypting the encoded ukb data |
 
 ---
-
-### Directory Structure
+---
+## Directory Structure
 
 Create a directory structure for placing downloading and populating data.
 
@@ -109,9 +110,9 @@ Create a directory structure for placing downloading and populating data.
               └─── imputed
 ```
 ---
+---
 
-
-### Decrypt UKB Data
+## Decrypt UKB Data
 
 The first step is to decrypt the *enc files provided by the UK Biobank using the ```ukbunpack``` utility
 
@@ -138,9 +139,16 @@ ${repo_dir}/data/ukb/raw/ukb40501.enc_ukb
 ---
 ---
 
-### Convert UKB Data
+## Convert UKB Data
 
 Once the data buckets have been converted to ```ukb*.enc_ukb```, we will convert from binary to human readable csv files using the ```ukbconv``` command.
+
+This code separately creates a smaller csv file containing covariates required for PHESANT regression. These UKB fields are:
+* 31 - sex
+* 54 - assessment center
+* 21003 - age at assessment center
+* 22009 - genetic principle components
+
 
 ```bash
 # Example command
@@ -165,9 +173,18 @@ ${repo_dir}/data/ukb/raw/ukb40501.csv
 ---
 ---
 
-### Download Bulk Data
+## Download Bulk Data
 
+These stage will download bulk fields. We document downloads for RSFC/RSFA data, but this works equally well for any bulk UKB field. 
+
+Acquiring the data requires 3 sequantial steps:  
+(1) PREP:     Make download lists of available data  
+(2) DOWNLOAD: Download individual bulk fields  
+(3) FORMAT:   Compile individual files into single csv dataframe
+
+**01: PREP**
 ```bash
+# Example command
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
 
@@ -189,9 +206,10 @@ ${repo_dir}/data/ukb/bulk/rfmri_full_25/25750.bulk
 ```
 
 
-#### do the download 
-
+**02: DOWNLOAD**
 ```bash
+# Example command
+
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
 
@@ -217,8 +235,7 @@ ${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id2}_25750_2_0.txt
 ${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id3}_25750_2_0.txt
 ```
 
-#### compile downloaded data 
-
+**03: FORMAT**
 ```bash
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
@@ -245,23 +262,44 @@ ${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id3}_25750_2_0.txt
 ${repo_dir}/data/ukb/raw/rfmri_full_25/bulk_25750_2_0.csv
 ```
 ---
+---
 
+## PHESANT Pipeline
 
+Data are next run through a custom version of PHESANT, once data are downloaded and formatted into csv files from above.
 
-### PHESANT Pipeline
+The PHESANT pipeline runs an age-regression for each phenotype, and saves the preprocessed data. 
 
-#### Format data for PHESANT
+Sequential steps:  
+(1) PREPARE: Put the csv files in the correct format for PHESANT  
+(2) RUN: Run PHESANT regression and save preprocessed data  
 
+__01: PREPARE__
 ```bash
+# example command
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
 
+# Run this for each data bucket 
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='prep_data_for_phesant' \
     --phesant-covar-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_covars.csv' \
-    --phesant-data-csv-list='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.csv' 
-    
+    --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25750_2.csv' \
+    --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25750_3.csv' \
+    --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25751_2.csv' \
+    --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25751_3.csv' \
+    --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25752_2.csv' \
+    --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25752_3.csv' \
+    --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25753_2.csv' \
+    --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25753_3.csv' \
+    --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25754_2.csv' \
+    --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25754_3.csv' \
+    --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25755_2.csv' \
+    --phesant-csv='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25755_3.csv'
+
+
+# temporary code for second data bucket    
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='prep_data_for_phesant' \
@@ -270,13 +308,13 @@ python ./scripts/main.py \
 
 ```
 
-#### If you are running this with bulk MRI data
-#### RSFA & RSFC data
+If you are running this with bulk RSFA & RSFC data
 
 ```bash
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
 
+# iterate over all the bulk mri filenames
 array=( bulk_25750_2 bulk_25750_3 bulk_25751_2 bulk_25751_3 bulk_25752_2 bulk_25752_3 bulk_25753_2 bulk_25753_3 bulk_25754_2 bulk_25754_3 bulk_25755_2 bulk_25755_3 ) 
 for var in "${array[@]}"
 do
@@ -291,7 +329,9 @@ done
 
 #### run PHESANT
 
+__01: RUN__
 ```bash
+# example command
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
 
@@ -305,8 +345,36 @@ python ./scripts/main.py \
     --phesant-phenofile='/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410_phesant_visit*_process.csv' \
     --slurm \
     --slurm_partition='short'
-```
+```  
     
+
+
+## Genetic Pipeline
+
+---
+---
+Genetic preprocessing is conducted on imputed UKB genetic data. 
+
+```bash
+# example command
+cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
+source ukb_venv/bin/activate
+
+python ./scripts/main.py \
+    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
+    --stage='download_genetic' 
+    
+python ./scripts/main.py \
+    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
+    --stage='snp_preprocess' \
+    --maf=0.01 \
+    --hwe=1e-6 \
+    --mind=0.1 \
+    --geno=0.1 \
+    --info=0.8 \
+    --slurm
+    
+```  
 
 
 
@@ -381,6 +449,15 @@ Some of the neuroimaging phenotypes are not available in the ```*.enc_ukb``` fil
 A) First, create *.bulk files listing the bulk data to download. 
 ```bash
 # harvard
+cd /ncf/sba01/ukbAgingPipeline
+python3 ./scripts/01b_download_bulk.py \
+         --config=/ncf/sba01/ukbAgingPipeline/config.json \
+         --bulk-field='mri_t1_nii:20252'  \
+         --make-bulk-list \
+         --slurm \
+         --slurm_partition='ncf'
+         
+cd /ncf/sba01/ukbAgingPipeline
 python3 ./scripts/01b_download_bulk.py \
          --config=/ncf/sba01/ukbAgingPipeline/config.json \
          --bulk-field='rfmri_full_25:25750'  \

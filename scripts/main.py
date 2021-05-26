@@ -19,7 +19,9 @@ import pandas as pd
 import glob
 import wget
 import tarfile
+from functools import reduce
 
+import phesant
 import download
 import genetics
 import utilities.utilities as utilities
@@ -56,8 +58,39 @@ def create_parser(interactive=None):
                                   '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_visit*_process.csv',
                                   '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410_phesant_visit*_regress.csv',
                                   '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410_phesant_visit*_process.csv']
+        args.phesant_csv = ['/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25750_2.csv',
+                            '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25750_3.csv',
+                            '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25751_2.csv',
+                            '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25751_3.csv',
+                            '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25752_2.csv',
+                            '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25752_3.csv',
+                            '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25753_2.csv',
+                            '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25753_3.csv',
+                            '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25754_2.csv',
+                            '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25754_3.csv',
+                            '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25755_2.csv',
+                            '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/bulk_25755_3.csv']
         args.phesant_visits = '0;1;2;3'
+        return args
 
+    # tmp manual definition of parser arguments
+    elif interactive == 'harvard':
+        parser = argparse.ArgumentParser()
+        args = parser.parse_args()
+        args.base_dir = '/ncf/sba01/simons_aging'
+        args.config = '/ncf/sba01/ukbAgingPipeline/harvard_config.json'
+        args.bulk_field = [['rfmri_full_25:25750'], ['rfmri_full_100:25751'], ['rfmri_part_25:25752'], ['rfmri_part_100:25753'], ['rfmri_rsfa_25:25754'], ['rfmri_rsfa_100:25755']]
+        args.make_bulk_list = True
+        args.download_bulk_data = False
+        args.slurm = True
+        args.stage = 'convert'
+        args.slurm_partition = 'short'
+        args.convert_all_fields = False
+        args.log_file = None
+        args.quiet = False
+        args.noisy = 0
+        args.phesant_data_csv_list = '/ncf/sba01/simons_aging/data/ukb/raw/bulk_25750_2.csv'
+        args.phesant_visits = '0;1;2;3'
         return args
 
     else:
@@ -73,14 +106,20 @@ def create_parser(interactive=None):
         parser.add_argument('--stages', dest='stages', nargs='+', required=False, default=False)
         parser.add_argument('--convert_all_fields', action='store_true', required=False, default=False)
         parser.add_argument('--log_file', dest='log_file', default=None)
+        parser.add_argument('--maf', dest='maf', type=float, default=None)
+        parser.add_argument('--info', dest='info', type=float, default=None)
+        parser.add_argument('--mind', dest='mind', type=float, default=None)
+        parser.add_argument('--geno', dest='geno', type=float, default=None)
+        parser.add_argument('--hwe', dest='hwe', type=float, default=None)
         parser.add_argument('--phesant-covar-csv-list', dest='phesant_covar_csv_list', action='append', nargs='+', default=None)
         parser.add_argument('--phesant-data-csv-list', dest='phesant_data_csv_list', default=None)
+        parser.add_argument('--phesant-csv', dest='phesant_csv', default=None)
         parser.add_argument('--phesant-variablelistfile', dest='phesant_variablelistfile', action='append', nargs='+', default=None)
         parser.add_argument('--phesant-visits', dest='phesant_visits', default='0;1;2;3')
         parser.add_argument('--phesant-phenofile', dest='phesant_phenofile', action='append', nargs='+', default=None)
         parser.add_argument('--quiet', '-q', action='store_true', default=False)
         parser.add_argument('--noisy', '-n', action='count', default=0)
-
+        parser.add_argument('--use-enc-ukb', dest='use_enc_ukb', default=None)
         args = parser.parse_args()
         return args
 
@@ -89,10 +128,11 @@ def main(argv=None):
 
     args = create_parser()
     # args = create_parser('yale')
+    # args = create_parser('harvard')
 
     logging.basicConfig(level=logging.DEBUG)
     date = datetime.date.today()
-    configLogging(args)
+    utilities.configLogging(args)
 
     log.info('buckner-lab-ukb-pipeline')
     log.info('Date: %s (%s)', date.today(), calendar.day_name[date.weekday()])
@@ -107,7 +147,7 @@ def main(argv=None):
     utilities.create_directories(root_dir=config_json['base_dir'])
 
     # download UKB utilities if needed
-    get_ukbutils(util_dir=os.path.join(config_json['base_dir'], 'data/ukb/raw'))
+    get_ukbutils(util_dir=os.path.join(config_json['base_dir'], 'data/ukb/external'))
 
     # decrypt the encoded ukb data
     if 'decrypt' == args.stage:
@@ -130,10 +170,10 @@ def main(argv=None):
         download.bulk_to_csv(config_json, args)
 
     if 'prep_data_for_phesant' in args.stage:
-        prep_data_for_phesant(config_json, args)
+        phesant.prep_data_for_phesant(config_json, args)
 
     if 'run_phesant' in args.stage:
-        run_phesant(config_json, args)
+        phesant.run_phesant(config_json, args)
 
     if 'ukb_sql' in args.stage:
         ukb_sql(config_json, args)
@@ -182,16 +222,22 @@ def ukb_sql(config_json, args):
 
     sql_dir       = os.path.join(config_json['base_dir'], 'data/ukb/sql')
     repo_dir      = config_json['repo_dir']
+
     ukb_meta      = pd.read_csv(os.path.join(config_json['base_dir'], 'data/ukb/raw/ukb_metadata.csv'))
     ordinal_codes = pd.read_csv(os.path.join(repo_dir, 'ref_files/data-coding-ordinal-info.txt'))
     codings       = pd.read_csv(os.path.join(repo_dir, 'ref_files/codings.csv'))
-    csv_files     = ['/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_visit0_regress.csv',
-                     '/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501_phesant_visit2_regress.csv']
+
+    col_list = []
+    csv_files = glob.glob(os.path.join(config_json['base_dir'], 'data/ukb/phesant', '*-data-*30.txt'))
+    for csv_file in csv_files:
+        df = pd.read_csv(csv_file)
+        col_list = col_list + df.columns.tolist()
+    flat_list = [item for sublist in col_list for item in sublist]
 
     table_types = dict(zip(['str','int','real','datetime'], ['VARCHAR', 'INTEGER', 'REAL', 'REAL']))
 
     ukb_meta = pd.read_csv(os.path.join(config_json['base_dir'], 'data/ukb/raw/ukb_metadata.csv'))
-    ukb_csv = csv_files[0]
+    ukb_csv  = csv_files[0]
     sql_path = os.path.join(sql_dir, 'ukb_db.sqlite')
     step = 10000
 
@@ -207,9 +253,7 @@ def ukb_sql(config_json, args):
             x = insert_data_to_sql(ukb_df, table_name, table_fields)
         field_desc.to_sql("field_desc", con, if_exists='replace', index=False)
 
-        ukb_df.columns
-
-
+        #ukb_df.columns
 
 
 def make_metadata(config_json, args):
@@ -264,185 +308,188 @@ def make_metadata(config_json, args):
     return meta_df
 
 
-def prep_data_for_phesant(config_json, args):
-    '''Concat all bulk data into a single csv'''
-    log.info('RUNNING: STAGE = PREP_DATA_FOR_PHESANT')
-
-    # ukb showcase metadata important for aligning to age variables
-    ukb_field_df = pd.read_table(os.path.join(config_json['repo_dir'], 'ref_files/field.txt'))
-
-    # for now, just examine variables that were collected in person
-    # age values need to be calculated by hand for online collections
-    # see here: https://biobank.ndph.ox.ac.uk/showcase/schema.cgi?id=9
-    inperson_fields = ukb_field_df['field_id'][ukb_field_df['instance_id'] == 2]
-    grep_inperson_fields = ['x{}_'.format(x) for x in inperson_fields]
-    # add imaging IDPs
-    grep_inperson_fields = ['x25752_', 'x25750_', 'x25751_', 'x25753_', 'x25754_', 'x25755_']
-
-    # use these ukb fields as covariates for phesant regressions
-    phesant_covariates = ['21003',
-                          '31',
-                          '54',
-                          '22000',
-                          '22009',
-                          '21003']
-
-    # format them with 'x' prepended
-    phesant_cols = ['xeid'] + \
-                   ['x{}_'.format(covar) for covar in phesant_covariates]
-
-    # read previously generated covariate csv files -- loop in case phesant covariates are split across multiple buckets
-    log.debug('Found {} covariate files to read'.format(len(args.phesant_covar_csv_list)))
-    log.debug('Found {} covariate files to read'.format(args.phesant_covar_csv_list))
-
-    covar_list = []
-    for covar_path in args.phesant_covar_csv_list:
-        log.debug('Reading csv: {}'.format(covar_path[0]))
-        covar_list.append(pd.read_csv(covar_path[0], low_memory=False))
-
-    # concat all covar DFs and rename columns
-    ukb_covar_df = pd.concat(covar_list)
-    ukb_covar_df.columns = ['x{}'.format(x) for x in ukb_covar_df.columns]
-    ukb_covar_df.columns = ukb_covar_df.columns.str.replace('-', '_').str.replace('[.]', '_')
-    ukb_covar_cols = [x for x in list(ukb_covar_df.columns) if x != 'xeid']
-
-    # read the big ukb dataframes
-    log.debug('Found {} data files to read'.format(len(args.phesant_data_csv_list)))
-    #for covar_path in args.phesant_covar_csv_list:
-    ukb_csv = args.phesant_data_csv_list
-
-    # read csv header
-    hdr = pd.read_csv(ukb_csv, nrows=1)
-    hdr.columns = ['x{}'.format(x) for x in hdr.columns.str.replace('-', '_').str.replace('[.]', '_')]
-    hdr = hdr[hdr.columns[np.where(hdr.loc[0] != '#ukbgene')]]
-    visitcol_dict = {}
-    for visit in ['0','1','2','3']:
-        visitcol_dict[visit] = {}
-        this_visit_cols = hdr.columns[hdr.columns.str.contains('_{}_'.format(visit))]
-        # TODO: add routines for online collections
-        # only keep fields that were collected in-person
-        notinperson_cols = [x for x in this_visit_cols if '{}_'.format(x.split('_')[0]) not in grep_inperson_fields]
-        inperson_cols    = [x for x in this_visit_cols if '{}_'.format(x.split('_')[0]) in grep_inperson_fields]
-        visitcol_dict[visit]['regress'] = ['xeid'] + inperson_cols
-        visitcol_dict[visit]['process'] = ['xeid'] + notinperson_cols
-
-    #ukb_csv = args.phesant_data_csv_list[0]
-    step = 10000
-    reader = pd.read_csv(ukb_csv, chunksize=step, low_memory=False, encoding="ISO-8859-1",)
-    for i, ukb_df in enumerate(reader):
-        log.debug('Reading Chunk-size: {}, Chunk: {}'.format(step, i))
-        ukb_df.columns = ['x{}'.format(x) for x in ukb_df.columns]
-        ukb_df.columns = ukb_df.columns.str.replace('-', '_').str.replace('[.]', '_')
-
-        for visit in ['0','1','2','3']:
-            column_info = visitcol_dict[visit]
-            for type in ['regress', 'process']:
-                # name of file to be written for phesant
-                columns_to_write = column_info[type]
-                phesant_write = ukb_csv.replace('.csv', '_phesant_visit{}_{}.csv'.format(visit, type))
-                if i == 0: log.debug(phesant_write)
-
-                # all columns for this visit (format ID_VISIT_INSTANCE
-                vis_cols = list(ukb_df.columns[ukb_df.columns.str.contains('_{}_'.format(visit))])
-                vis_df   = ukb_df[['xeid'] + vis_cols]
-
-                if vis_df.shape[1] == 1: continue
-
-                # remove columns in the covariate dataframe to prevent doubling up
-                noncovar_cols = ['xeid'] + list(vis_df.columns.difference(ukb_covar_df.columns))
-
-                # merge covariates with data
-                merge_df   = ukb_covar_df.merge(vis_df[noncovar_cols], on='xeid')
-                #visit_cols = visitcol_dict[visit]
-
-                # rows, not including id columns
-                check_cols = [x for x in columns_to_write if x != 'xeid']
-
-                # get rid of subjects with all nans (e.g. non-imaging subjects on visit 2)
-                keep_rows     = merge_df[check_cols].isna().sum(1) != len(check_cols)
-                final_col_arr = ['xeid'] + pd.Series(list(set(check_cols + ukb_covar_cols))).sort_values().to_list()
-                write_df      = merge_df[final_col_arr]
-                write_df      = write_df.loc[keep_rows]
-                # drop problematic columns that confuse phesant with commend characters
-                #merge_df = merge_df[merge_df.columns[np.where(merge_df.loc[0] != '#ukbgene')]]
-                if i == 0:
-                    write_df.to_csv(phesant_write, index=None)
-                else:
-                    write_df.to_csv(phesant_write, mode='a', header=None, index=None)
-
-
-
-def run_phesant(config_json, args):
-    log.info('RUNNING: STAGE = RUN_PHESANT')
-    log.debug(args)
-
-    write_dir = os.path.join(config_json['base_dir'], 'slurm')
-
-   # age_var     = args.age_var #'x21003_2_0'
-    visit_arr = args.phesant_visits.split(';')
-
-    # set up filepaths
-    phesant_dir = os.path.join(config_json['repo_dir'], 'external/PHESANT/WAS')
-    resDir      = os.path.join(config_json['base_dir'], 'data/ukb/phesant/')
-    variablelistfile = os.path.join(config_json['repo_dir'], 'ref_files/outcome-info.tsv')
-    datacodingfile   = os.path.join(config_json['repo_dir'], 'ref_files/data-coding-ordinal-info.txt')
-
-    for visit in visit_arr:
-        age_var = 'x21003_{}_0'.format(visit)
-        for pheno_grep in args.phesant_phenofile:
-            phenofile  = pheno_grep[0].replace('*', visit)
-            phenoname  = phenofile.split('/')[-1].replace('.csv','')
-            phesant_cmd = f'''
-cd {phesant_dir}
-Rscript phenomeScan.r \\
-        --phenofile={phenofile} \\
-        --variablelistfile={variablelistfile} \\
-        --datacodingfile={datacodingfile} \\
-        --traitofinterest="{age_var}" \\
-        --resDir={resDir} \\
-        --userId="xeid" \\
-        --sensitivity \\
-        --ageistraitofinterest \\
-        --genetic="FALSE" \\
-        --visit={visit} \\
-        --file_prepend={phenoname} \\
-        --save'''
-
-            # write executable to file
-            if args.slurm == True:
-                write_file = os.path.join(write_dir, 'phesant_{}'.format(phenoname))
-                utilities.submit_slurm(
-                    utilities.write_slurm(slurm_file=write_file,
-                                          partition=args.slurm_partition, cmd=phesant_cmd,
-                                          jobName=phenoname, stime='6:00:00', nthreads=12))
-            else:
-                write_file = os.path.join(write_dir, 'phesant_{}.bash'.format(phenoname))
-                utilities.write_cmd(cmd=phesant_cmd, write_file=write_file)
 
 
 def snp_preprocess(config_json, args):
-    args.maf = 0.01
-    args.hwe = 1e-6
-    args.mind = 0.02
-    args.geno = 0.02
-    args.info = 0.60
+    '''
 
-    # point to directories
+    :param config_json:
+    :param args:
+    :return:
+    '''
+    #args.maf = 0.01
+    #args.hwe = 1e-6
+    #args.mind = 0.02
+    #args.geno = 0.02
+    #args.info = 0.60
+
+    # point to genotype data directories
+    # --------------------
     genotyped_dir = os.path.join(config_json['base_dir'], 'data/ukb/genetic/genotyped')
     imputed_dir   = os.path.join(config_json['base_dir'], 'data/ukb/genetic/imputed')
+    log.info('GENOTYPED dir : {}'.format(genotyped_dir))
+    log.info('IMPUTED dir : {}'.format(genotyped_dir))
 
-    # create descriptive folder name
+    # create descriptive folder names
     imp_dirname  = genetics.snp_dirname(imp_or_cal='imp', maf=args.maf, hwe=args.hwe, mind=args.mind, geno=args.geno, info=args.info)
     snp_dirname  = genetics.snp_dirname(imp_or_cal='cal', maf=args.maf, hwe=args.hwe, mind=args.mind, geno=args.geno, info=args.info)
 
-    # create output directory
+    # create output directories
+    # --------------------
     geno_proc_dir = os.path.join(config_json['base_dir'], 'data/ukb/genetic/genotyped_processed')
-    if not os.path.exists(geno_proc_dir):
-        os.mkdir(geno_proc_dir)
-    imp_proc_dir = os.path.join(config_json['base_dir'], 'data/ukb/genetic/imputed_processed')
-    if not os.path.exists(imp_proc_dir):
-        os.mkdir(imp_proc_dir)
+    utilities.make_dir(geno_proc_dir)
+    utilities.make_dir(os.path.join(geno_proc_dir, snp_dirname))
 
+    imp_proc_dir = os.path.join(config_json['base_dir'], 'data/ukb/genetic/imputed_processed')
+    utilities.make_dir(imp_proc_dir)
+    utilities.make_dir(os.path.join(imp_proc_dir, imp_dirname))
+
+    # identify high quality imputed SNPs
+    #info_filter(config_json, args)
+    #cohort_filter(config_json, args)
+
+
+    sub_keep_file = os.path.join(config_json['base_dir'], 'data/ukb/raw/plink_genetic_subjectsar.txt')
+    plink2 = '/gpfs/milgram/project/holmes/kma52/buckner_aging/external/plink2'
+    for chrom in range(1,23):
+        fname      = imp_dirname.replace('_imp_', '_imp_chr{}_'.format(chrom))
+        bgen_out   = os.path.join(imp_proc_dir, imp_dirname, fname)
+
+        cur_bgen   = '/gpfs/milgram/data/UKB/ukb_snp/ukb_imp_chr{}_v3.bgen'.format(chrom)
+        cur_sample = '/gpfs/milgram/data/UKB/ukb_snp/ukb25163_imp_chr{}_v3_s487324.sample'.format(chrom)
+        snp_keep_file  = os.path.join(imputed_dir, 'ukb_mfi_chr{}_v3_plink_keep.txt'.format(chrom))
+        sub_keep_file = os.path.join(config_json['base_dir'], 'data/ukb/raw/plink_genetic_subjects.txt')
+
+        plink_cmd = f'''{plink2} \\
+         --bgen {cur_bgen} ref-first \\
+         --sample {cur_sample} \\
+         --max-alleles 2 \\
+         --maf {args.maf} \\
+         --hwe {args.hwe} \\
+         --mind {args.mind} \\
+         --geno {args.geno} \\
+         -export bgen-1.2 'bits=8' \\
+         --keep {sub_keep_file} \\
+         --extract 'range' {snp_keep_file} \\
+         --out {bgen_out}
+         '''
+
+        slurm_dir  = os.path.join(config_json['base_dir'], 'slurm')
+        slurm_file = os.path.join(slurm_dir, 'snp_preproc_chrom{}'.format(chrom))
+        if args.slurm == True:
+            slurm_path = utilities.write_slurm(slurm_file, 'short', plink_cmd, 'plink_chr{}'.format(chrom), stime='6:00:00', n_gpu=None, nthreads=24, mem='180G')
+            log.info(slurm_path)
+            job_id = utilities.submit_slurm(slurm_path)
+
+        else:
+            utilities.write_cmd(cmd=plink_cmd, write_file=slurm_file)
+
+
+    exit()
+
+
+def info_filter(config_json, args):
+    '''
+    :cvar
+    '''
+
+    log.info('Filtering imputed variants with INFO <= {}'.format(args.info))
+    imputed_dir = os.path.join(config_json['base_dir'], 'data/ukb/genetic/imputed')
+    qctool = '/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/external/qctool/qctool'
+
+    for chrom in range(1,23):
+        info_file = os.path.join(imputed_dir, 'ukb_mfi_chr{}_v3.txt'.format(chrom))
+        log.info('Reading: {}'.format(info_file))
+
+        info_df   = pd.read_table(info_file, header=None)
+        info_df.columns = ['id', 'rsid', 'bp', 'ref', 'alt', 'maf', 'fill', 'info']
+        log.info('Total variants: {}'.format(info_df.shape[0]))
+
+        info_keep_df  = info_df.loc[info_df['info'] > args.info]
+        keep_var_df   = pd.DataFrame({'chr1': chrom, 'chr2': chrom, 'bp': info_keep_df.bp.astype(str)})
+        log.info('Passing variants: {}'.format(info_keep_df.shape[0]))
+
+        info_file = os.path.join(imputed_dir, 'ukb_mfi_chr{}_v3_plink_keep.txt'.format(chrom))
+        log.info('Writing: {}'.format(info_file))
+        keep_var_df.to_csv(info_file, index=None, header=None, sep='\t')
+
+
+def cohort_filter(config_json, args):
+    '''
+    :cvar
+    '''
+
+    log.info('Identifying UKB subjects for genetic analyses')
+
+    # fields required for genotype filter
+    genotype_qc_fields = ['31', '22019', '22001', '22021', '22006', '22004', '22005', '22020', '22009', '22027']
+    geno_qc_substrings = ['x{}_'.format(x) for x in genotype_qc_fields]
+
+    # path to previously generated dataframe (combines all UKB buckets)
+    vis0_path = os.path.join(config_json['base_dir'], 'data/ukb/raw/phesant_visit0.csv')
+    log.info('Reading genetic covariates from: {}'.format(vis0_path))
+
+    # read header and make list of variables to pull
+    with open(vis0_path, 'r') as f:
+        hdr = pd.Series(f.readline().replace('\n', '').split(','))
+
+    idx_lists = [list(np.where(hdr.str.contains(x))[0]) for x in geno_qc_substrings]
+    flat_list = [item for sublist in idx_lists for item in sublist]
+    pull_columns = hdr[flat_list].tolist()
+
+    # read genetic quality control information from unified visit0 dataframe
+    log.info('Start read...')
+    gene_qc_dfs = []
+    reader = pd.read_csv(vis0_path, chunksize=10000, low_memory=False, encoding="ISO-8859-1",)
+    for i, ukb_df in enumerate(reader):
+        gene_qc_dfs.append(ukb_df[['xeid'] + pull_columns])
+    gene_df = pd.concat(gene_qc_dfs)
+    log.info('Done.')
+
+    # GENETIC vs REPORTED SEX
+    rm_sexmismatch = gene_df.loc[gene_df['x22001_0_0'] != gene_df['x31_0_0'], 'xeid'].tolist()
+    log.info('Reported-vs-Genetic sex mismatch: n={}'.format(len(rm_sexmismatch)))
+
+
+    # SEX ANEUPLOIDY
+    rm_aneuploidy = gene_df.loc[np.where(gene_df['x22019_0_0'] == 1), 'xeid'].tolist()
+    log.info('Sex aneuploidy: n={}'.format(len(rm_aneuploidy)))
+
+    # EUROPEAN
+    rm_ethnicity = gene_df.loc[gene_df['x22006_0_0'] != 1, 'xeid'].tolist()
+    log.info('Not EUR ancestry: n={}'.format(len(rm_ethnicity)))
+
+    # KINSHIP
+    #kin_df = pd.read_csv(os.path.join(config_json['base_dir'], 'data/ukb/raw/ukb_rel_a25163_s488225.dat'), delim_whitespace=True)
+    #kin_df['idx'] = kin_df.index
+    # third degree relatives
+    #cutoff = 0.0884
+    #kin_df = kin_df.loc[kin_df.Kinship > cutoff]
+    #connections = kin_df[['ID1','ID2']].melt()['value'].value_counts()
+
+    # for now, use the UKB provided "used.in.pc.calculation', which is a maximal set of unrelated subjects
+    rm_related = gene_df.loc[np.where(gene_df['x22020_0_0'] != 1)[0], 'xeid'].tolist()
+    log.info('Not used in genetic PC calc (relatedness): n={}'.format(len(rm_related)))
+
+    # HETEROZYGOSITY / MISSINGNESS OUTLIERS
+    rm_outliers = gene_df.loc[np.where(gene_df['x22027_0_0'] == 1)[0], 'xeid'].tolist()
+    log.info('Het/Missingness outliers: n={}'.format(len(rm_outliers)))
+
+    rm_subs = rm_sexmismatch + rm_aneuploidy + rm_ethnicity + rm_related + rm_outliers
+    rm_subs = list(set(rm_subs))
+    log.info('UNIQUE subs to remove: n={}'.format(len(rm_subs)))
+
+    # subjects for genetic analyses
+    subs_for_genetics = gene_df.loc[~gene_df.xeid.isin(rm_subs), 'xeid'].tolist()
+    plink_df = pd.DataFrame({'IID': subs_for_genetics, 'FID': subs_for_genetics})
+    log.info('UKB subjects remaining: n={}'.format(plink_df.shape[0]))
+
+    write_file = os.path.join(config_json['base_dir'], 'data/ukb/raw/genetic_subjects.txt')
+    pd.Series(subs_for_genetics).to_csv(write_file, index=None, header=None)
+
+    write_file = os.path.join(config_json['base_dir'], 'data/ukb/raw/plink_genetic_subjects.txt')
+    log.info('PLINK formatted subject keep file: {}'.format(write_file))
+    plink_df.to_csv(write_file, index=None, sep='\t')
 
 
 
@@ -500,9 +547,6 @@ def download_genetic(config_json, args):
 
 
 
-
-
-
 def convert_cmd(ukbconv, raw_dir, enc_ukb, output_format, field_file=None, out=None):
     '''Create command to convert ukb data fields'''
     print(out)
@@ -516,39 +560,6 @@ def convert_cmd(ukbconv, raw_dir, enc_ukb, output_format, field_file=None, out=N
     else:
         decrypt_cmd = f"{decrypt_cmd}{ukbconv} {enc_ukb} {output_format} -o./{o_name}"
     return decrypt_cmd
-
-
-
-def configLogging(args):
-    """Configures ``funpack`` logging.
-
-    :arg args: ``argparse.Namespace`` object containing parsed command line
-               arguments.
-    """
-    class LogHandler(logging.StreamHandler):
-        def emit(self, record):
-            levelno = record.levelno
-            if   levelno >= logging.WARNING:  colour = '\x1b[31;1m'
-            elif levelno >= logging.INFO:     colour = '\x1b[39;1m'
-            elif levelno >= logging.DEBUG:    colour = '\x1b[90;1m'
-            else:                             colour = ''
-            # Reset terminal attributes
-            # after each message.
-            record.msg = '{}{}\x1b[0m'.format(colour, record.msg)
-            return super(LogHandler, self).emit(record)
-
-    fmt    = logging.Formatter('%(asctime)s '
-                               '%(levelname)8.8s '
-                               '%(filename)20.20s '
-                               '%(lineno)4d: '
-                               '%(funcName)-15.15s - '
-                               '%(message)s',
-                               '%H:%M:%S')
-    handler = LogHandler()
-    handler.setFormatter(fmt)
-    log.addHandler(handler)
-    log.propagate = False
-
 
 
 if __name__ == '__main__':

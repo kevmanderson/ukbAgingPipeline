@@ -10,6 +10,37 @@ import warnings
 
 log = logging.getLogger('ukb')
 
+def configLogging(args):
+    """Configures ``funpack`` logging.
+
+    :arg args: ``argparse.Namespace`` object containing parsed command line
+               arguments.
+    """
+    class LogHandler(logging.StreamHandler):
+        def emit(self, record):
+            levelno = record.levelno
+            if   levelno >= logging.WARNING:  colour = '\x1b[31;1m'
+            elif levelno >= logging.INFO:     colour = '\x1b[39;1m'
+            elif levelno >= logging.DEBUG:    colour = '\x1b[90;1m'
+            else:                             colour = ''
+            # Reset terminal attributes
+            # after each message.
+            record.msg = '{}{}\x1b[0m'.format(colour, record.msg)
+            return super(LogHandler, self).emit(record)
+
+    fmt    = logging.Formatter('%(asctime)s '
+                               '%(levelname)8.8s '
+                               '%(filename)20.20s '
+                               '%(lineno)4d: '
+                               '%(funcName)-15.15s - '
+                               '%(message)s',
+                               '%H:%M:%S')
+    handler = LogHandler()
+    handler.setFormatter(fmt)
+    log.addHandler(handler)
+    log.propagate = False
+
+    
 def read_funpack_categories(cat_file):
     '''Read a funpack formatted category.tsv file'''
     with open(cat_file, 'r') as f:
