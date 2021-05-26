@@ -18,9 +18,9 @@ Running this code will require a bit of unavoidable babysitting, since most stag
 | Directory Structure | [details](#directory-structure) | Create project directories that will be populated with data  | 
 | Decrypt UKB Data | [details](#decrypt-ukb-data) | Decrypt `ukb*.enc` to `ukb*.enc_ukb` format | 
 | Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
-| Download Bulk MRI Data | [details](#download-bulk-data) | Bulk data download requires 3 sequential steps | 
-| PHESANT Pipeline | [details](#phesant-pipeline) | Bulk data download requires 3 sequential steps | 
-| Genetic Pipeline | [details](#phesant-pipeline) | Bulk data download requires 3 sequential steps | 
+| Download Bulk MRI Data | [details](#download-bulk-data) | Bulk MRI data download (conducted in 3 sequential steps) | 
+| PHESANT Pipeline | [details](#phesant-pipeline) | Phenome-wide regression against AGE. PHESANT also minimally preprocesses UKB phenotype data | 
+| Genetic Pipeline | [details](#genetic-pipeline) | Download and preprocess UKB SNP data | 
 
 
 
@@ -44,19 +44,24 @@ Singularity is usually preferred in cluster environments.
 # optional, clear prior singularity images
 singularity cache clean
 
-# Pull the docker container 
+# Pull the container from DockerHub (w/ Singularity)
 singularity pull --name buckner_lab_ukb_pipeline docker://kevinanderson/buckner-lab-ukb-pipeline
 singularity shell buckner_lab_ukb_pipeline
 ```
 
 #### Option 3: Docker
 ```bash
-# Pull the docker container 
+# Pull the container from DockerHub (w/ Docker)
 docker pull kevinanderson/buckner-lab-ukb-pipeline
 ```
 
 
 ## Required Configuration File
+
+This pipeline requires you to specify some data paths and directories specific to your environment. 
+
+See below for an example: 
+
 ```json
 [
   {
@@ -66,10 +71,6 @@ docker pull kevinanderson/buckner-lab-ukb-pipeline
       {
         "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.enc",
         "ukb_key": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb40501.key"
-      },
-      {
-        "ukb_enc": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410.enc",
-        "ukb_key": "/gpfs/milgram/project/holmes/kma52/buckner_aging/data/ukb/raw/ukb43410.key"
       }],
     "genotyped_data": "/gpfs/milgram/data/UKB/REPOSITORY/GWAS/NON_IMPUTED/ukb_cal_chr*_v2",
     "imputed_data": [
@@ -85,15 +86,19 @@ docker pull kevinanderson/buckner-lab-ukb-pipeline
 | ------------- | ------------- |
 | base_dir | Path to the primary project directory where results will be downloaded/written. The code will handle directory creation. This path is empty, but its (probably) OK if not. Path should have a healthy (>100GB) amount of disk storage. |
 | repo_dir | Top-level path to the this code repository (i.e. where ```git clone``` put all the code). Should be different than ```base_dir```.  |
-| ukb_encs | List of ukb_enc files and their keys. It's preferred to merge your UKB data baskets into a single enc file, but this can take time. |
+| ukb_encs | List of ukb_enc files and their keys. UKB data are often split into multiple "buckets". This pipeline with read and aggregate separate data buckets into a single source. |
 | ukb_enc | Full path to your raw UK Biobank data bucket, downloaded from the UKB AMS portal. I suggest merging all your data into a single bucket using the UKB AMS tools...it will make your life easier in the long run anyways. | 
 | ukb_key | Full path to your UKB key, required for decrypting the encoded ukb data |
+| genotyped_data | [OPTIONAL] Full path to already downloaded UKB genotype (not imputed bgen) files. Replace the chromosome number with a wildcard "*" |
+| imputed_data | [OPTIONAL] Full path to already downloaded UKB imputed bgen + sample files (not genotyped plink). |
+| bgen | [OPTIONAL] Path to bgen files (replace chromosome number with "*") |
+| sample | [OPTIONAL] Path to sample files (replace chromosome number with "*") |
 
 ---
 ---
 ## Directory Structure
 
-Create a directory structure for placing downloading and populating data.
+Create the directory structure for downloading and processing data.
 
 ```
 . "base_dir"
