@@ -272,6 +272,8 @@ Data are next run through a custom version of PHESANT, once data are downloaded 
 
 The PHESANT pipeline runs an age-regression for each phenotype, and saves the preprocessed data. 
 
+All separate data buckets and bulk MRI files will be combined into single csvs, split by visit.
+
 Sequential steps:  
 (1) PREPARE: Put the csv files in the correct format for PHESANT  
 (2) RUN: Run PHESANT regression and save preprocessed data  
