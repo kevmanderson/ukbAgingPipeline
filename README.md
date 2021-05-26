@@ -110,6 +110,7 @@ This directory tree will be created within the "base_dir" path specified in your
 └─── data
      └─── ukb
           └─── bulk
+          └─── phesant
           └─── raw
           └─── output
               └─── sqlite_files
@@ -178,12 +179,12 @@ ${repo_dir}/data/ukb/raw/ukb40501.csv
 
 These stage will download bulk fields. We document downloads for RSFC/RSFA data, but this works equally well for any bulk UKB field. 
 
-Acquiring the data requires 3 sequantial steps:  
-(1) PREP:     Make download lists of available data  
-(2) DOWNLOAD: Download individual bulk fields  
-(3) FORMAT:   Compile individual files into single csv dataframe
+Acquiring the bulk MRI data requires 3 sequential steps:
+1. PREP:     Make download lists of subjects with bulk data  
+2. DOWNLOAD: Download bulk data specified in the lists from (1)   
+3. FORMAT:   Compile individual files into single csv dataframe
 
-**01: PREP**
+**01: Prepare bulk download lists**
 ```bash
 # Example command
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
@@ -207,7 +208,7 @@ ${repo_dir}/data/ukb/bulk/rfmri_full_25/25750.bulk
 ```
 
 
-**02: DOWNLOAD**
+**02: Download bulk data**
 ```bash
 # Example command
 
@@ -236,7 +237,7 @@ ${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id2}_25750_2_0.txt
 ${repo_dir}/data/ukb/bulk/rfmri_full_25/${ukb_id3}_25750_2_0.txt
 ```
 
-**03: FORMAT**
+**03: Combine bulk data into csv files**
 ```bash
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
