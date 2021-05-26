@@ -20,7 +20,7 @@ Running this code will require a bit of unavoidable babysitting, since most stag
 | 5 |Convert UKB Data | [details](#decrypt-ukb-data) | Converts `ukb*.enc_ukb` files to usable csvs and tables | 
 | 6 | Download Bulk MRI Data | [details](#download-bulk-data) | Bulk MRI data download (conducted in 3 sequential steps) | 
 | 7 | PHESANT Pipeline | [details](#phesant-pipeline) | Phenome-wide regression against AGE. PHESANT also minimally preprocesses UKB phenotype data | 
-| 8 | Genetic Pipeline | [details](#genetic-pipeline) | Download and preprocess UKB SNP data | 
+| 8 | Genetic Pipeline | [details](#genetic-pipeline) | Preprocess UKB SNP data | 
 
 
 
