@@ -362,23 +362,37 @@ ${repo_dir}/data/ukb/phesant/phewas_visit2-data-catunord.txt
 ```
 
 
-
+---
+---
 
 ## Genetic Pipeline
 
----
----
-Genetic preprocessing is conducted on imputed UKB genetic data. 
+Genetic preprocessing of imputed UKB genetic data. 
+
+__Cohort Filter__  
+ - Genetic sex (22001) / Reported sex (31)
+ - Sex aneuploidy (22019)
+ - European ancestry (22006)
+ - Used in genetic PC calculation (22020), proxy for relatedness
+ - Genotype Missingness > 10%
+
+__Variant Filter__
+ - Minor Allele Frequency (MAF) <  0.01
+ - Missingness > 10%
+ - Hardy-Weinberg Equilibrium (HWE) p < 1e-6
+ - Imputation accuracy (INFO) > 80%
 
 ```bash
 # example command
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
 source ukb_venv/bin/activate
 
+# [OPTIONAL] Download data if you did not specify pre-existing paths in the config file
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='download_genetic' 
-    
+   
+# Preprocess imputed genetic data data, separately by chromosome
 python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='snp_preprocess' \

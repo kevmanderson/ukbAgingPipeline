@@ -450,7 +450,6 @@ def cohort_filter(config_json, args):
     rm_sexmismatch = gene_df.loc[gene_df['x22001_0_0'] != gene_df['x31_0_0'], 'xeid'].tolist()
     log.info('Reported-vs-Genetic sex mismatch: n={}'.format(len(rm_sexmismatch)))
 
-
     # SEX ANEUPLOIDY
     rm_aneuploidy = gene_df.loc[np.where(gene_df['x22019_0_0'] == 1), 'xeid'].tolist()
     log.info('Sex aneuploidy: n={}'.format(len(rm_aneuploidy)))
