@@ -324,11 +324,11 @@ ${repo_dir}/data/ukb/raw/phesant_covar_vis3.csv
 
 ```
 
-#### run PHESANT
+
+__02: RUN PHESANT__
 
 Once data are prepared, run the PHESANT pipeline. 
 
-__02: RUN__
 ```bash
 # example command
 cd /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline
@@ -341,6 +341,27 @@ python ./scripts/main.py \
     --slurm_partition='short'
 ```  
     
+#### input/output
+```bash
+# Example Input: 
+${repo_dir}/data/ukb/raw/phesant_visit0.csv
+${repo_dir}/data/ukb/raw/phesant_covar_vis0.csv
+
+# Example Output:
+# PHESANT regression results
+${repo_dir}/data/ukb/phesant/phewas_visit2-results-linear.txt
+${repo_dir}/data/ukb/phesant/phewas_visit2-results-ordered-logistic.txt
+${repo_dir}/data/ukb/phesant/phewas_visit2-results-multinomial-logistic.txt
+${repo_dir}/data/ukb/phesant/phewas_visit2-results-logistic-binary.txt
+
+# Minimally preprocessed data
+${repo_dir}/data/ukb/phesant/phewas_visit2-data-cont.txt
+${repo_dir}/data/ukb/phesant/phewas_visit2-data-binary.txt
+${repo_dir}/data/ukb/phesant/phewas_visit2-data-catord.txt
+${repo_dir}/data/ukb/phesant/phewas_visit2-data-catunord.txt
+```
+
+
 
 
 ## Genetic Pipeline
