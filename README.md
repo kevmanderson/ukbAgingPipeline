@@ -177,7 +177,9 @@ ${repo_dir}/data/ukb/raw/ukb40501.csv
 
 ## Download Bulk Data
 
-These stage will download bulk fields. We document downloads for RSFC/RSFA data, but this works equally well for any bulk UKB field. 
+Some of the neuroimaging phenotypes are not available in the ```*.enc_ukb``` file. These fields include resting-state "imaging derived phenotypes" (IDPs). We have to download and compile them separately. 
+
+We document downloads for RSFC/RSFA data, but this works equally well for any bulk UKB field. 
 
 Acquiring the bulk MRI data requires 3 sequential steps:
 1. PREP:     Make download lists of subjects with bulk data  
@@ -338,7 +340,7 @@ python ./scripts/main.py \
     --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
     --stage='run_phesant' \
     --slurm \
-    --slurm_partition='short'
+    --slurm_partition='psych_day'
 ```  
     
 #### input/output
@@ -364,7 +366,6 @@ ${repo_dir}/data/ukb/phesant/phewas_visit2-data-catunord.txt
 
 ---
 ---
-
 ## Genetic Pipeline
 
 Genetic preprocessing of imputed UKB genetic data. 
@@ -402,151 +403,10 @@ python ./scripts/main.py \
     --geno=0.1 \
     --info=0.8 \
     --slurm
-    
 ```  
-
-
-
-
-# Example command (obviously, define $repo_dir variable yourself)
-cd ${repo_dir}
-singularity run simons_ukb_aging_pipeline \
-  python3 /scripts/00_create_dirs.py \
-    --config=./config.json
-
-# if modifying code, use full path to the script
-cd ${repo_dir}
-singularity run simons_ukb_aging_pipeline \
-  python3 ${repo_dir}/scripts/00_create_dirs.py \
-    --config=${repo_dir}/config.json
-   
-
-# TMP -- harvard 
-singularity run simons_ukb_aging_pipeline \
-  python3 /ncf/sba01/ukbAgingPipeline/scripts/00_create_dirs.py \
-    --config=/ncf/sba01/ukbAgingPipeline/harvard_config.json
-    
-# TMP -- yale    
-singularity run simons_ukb_aging_pipeline \
-  python3 /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/00_create_dirs.py \
-    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json
-```
+---
 ---
 
-### Step 1: Prep UKB Raw Data
-
-Next, decrypt the ```ukb_enc``` file and convert to the proper formats.
-
-We assume you've merged your data into a single omnibus data bucket (i.e. ```ukb*****.enc```). 
-
-Set the path to this file using the ```ukb_enc``` parameter in the ```config.json``` file.
-
-We decrypt the ```*.enc``` file using the [ukbunpack](https://biobank.ndph.ox.ac.uk/showcase/download.cgi) utility. 
-
-We convert the ```*.enc_ukb``` file to readable formats using the [ukbconv](https://biobank.ndph.ox.ac.uk/showcase/download.cgi) utility. 
-
-Calling the script below will result in two outputs:   
-    1. ```r```: Primary format used for creating the SQL database.  
-    2. ```csv```: Required for running a modified version of [PHESANT](https://github.com/MRCIEU/PHESANT). 
-
-Execute the data preparation step with the following command:
-
-*N.B.* This will take a __30-90__ minutes...time for coffee.
-
-```bash
-singularity run simons_ukb_aging_pipeline \
-  python3 scripts/01_convert_ukbenc_data.py \
-    --config=./config.json
-
-# harvard 
-singularity run simons_ukb_aging_pipeline \
-  python3 /ncf/sba01/ukbAgingPipeline/scripts/01_convert_ukbenc_data.py \
-    --config=/ncf/sba01/ukbAgingPipeline/config.json
-    
-# yale    
-singularity run simons_ukb_aging_pipeline \
-  python3 /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/01_convert_ukbenc_data.py \
-    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json
-```
-
----
-
-### Step 1b (Optional): Download Bulk MRI Data
-
-Some of the neuroimaging phenotypes are not available in the ```*.enc_ukb``` file. These fields include resting-state "imaging derived phenotypes" (IDPs). We have to download and compile them separately. 
-
-A) First, create *.bulk files listing the bulk data to download. 
-```bash
-# harvard
-cd /ncf/sba01/ukbAgingPipeline
-python3 ./scripts/01b_download_bulk.py \
-         --config=/ncf/sba01/ukbAgingPipeline/config.json \
-         --bulk-field='mri_t1_nii:20252'  \
-         --make-bulk-list \
-         --slurm \
-         --slurm_partition='ncf'
-         
-cd /ncf/sba01/ukbAgingPipeline
-python3 ./scripts/01b_download_bulk.py \
-         --config=/ncf/sba01/ukbAgingPipeline/config.json \
-         --bulk-field='rfmri_full_25:25750'  \
-         --bulk-field='rfmri_full_100:25751'  \
-         --bulk-field='rfmri_part_25:25752'  \
-         --bulk-field='rfmri_part_100:25753'  \
-         --bulk-field='rfmri_rsfa_25:25754'  \
-         --bulk-field='rfmri_rsfa_100:25755'  \
-         --bulk-field='mri_rest_dicom:20225'  \
-         --bulk-field='mri_rest_nii:20227'  \
-         --bulk-field='mri_t1_nii:20252'  \
-         --bulk-field='mri_t2_nii:20253'  \
-         --bulk-field='mri_swi_nii:20251'  \
-         --bulk-field='mri_swi_dicom:20219'  \
-         --bulk-field='mri_dmri_dicom:20218'  \
-         --bulk-field='mri_dmri_nii:20250'  \
-         --bulk-field='actigraphy_cwa:90001'  \
-         --bulk-field='actigraphy_timeseries:90004' \
-         --make-bulk-list \
-         --slurm \
-         --slurm_partition='ncf'
-```
-
-B) Second, actually download the bulk data. 
-```bash
-# harvard
-python3 ./scripts/01b_download_bulk.py \
-         --config=/ncf/sba01/ukbAgingPipeline/config.json \
-         --bulk-field='actigraphy_cwa:90001'  \
-         --download-bulk-data \
-         --slurm \
-         --slurm_partition='ncf'
-
-# yale
-python3 ./scripts/01b_download_bulk.py \
-         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
-         --bulk-field='rfmri_full_25:25750'  \
-         --bulk-field='rfmri_full_100:25751'  \
-         --bulk-field='rfmri_part_25:25752'  \
-         --bulk-field='rfmri_part_100:25753'  \
-         --bulk-field='rfmri_rsfa_25:25754'  \
-         --bulk-field='rfmri_rsfa_100:25755'  \
-         --download-bulk-data \
-         --slurm \
-         --slurm_partition='short'
-```
-
-C) Once bulk MRI data have been downloaded, read and compile them into dataframes.
-
-```bash
-singularity run simons_ukb_aging_pipeline \
-python3 ./scripts/01c_compile_bulk_data.py \
-         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/yale_config.json \
-         --bulk-field='rfmri_full_25:25750'  \
-         --bulk-field='rfmri_full_100:25751'  \
-         --bulk-field='rfmri_part_25:25752'  \
-         --bulk-field='rfmri_part_100:25753'  \
-         --bulk-field='rfmri_rsfa_25:25754'  \
-         --bulk-field='rfmri_rsfa_100:25755'
-```
 
 #### Neuroimaging Bulk Fields
 
@@ -563,22 +423,6 @@ python3 ./scripts/01c_compile_bulk_data.py \
 
 ---
 
-### Step 2: Download Genetic Data
-
-```bash
-
-python3 ./scripts/02_download_genetic.py \
-         --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \
-         --bulk-field='rfmri_full_25:25750'  \
-         --bulk-field='rfmri_full_100:25751'  \
-         --bulk-field='rfmri_part_25:25752'  \
-         --bulk-field='rfmri_part_100:25753'  \
-         --bulk-field='rfmri_rsfa_25:25754'  \
-         --bulk-field='rfmri_rsfa_100:25755'
-
-```
-
----
 
 ### Step 3: Prep UKB Metadata
 
@@ -614,82 +458,6 @@ The final output of this step is the ```ukbMetaData.csv``` dataframe:
 
 This step will also create the ```covariateTable.csv``` file used for preselecting confounders used in the regression. 
 
----
-
-### Step 4: Create UKB SQLite file
-
----
-
-### Step 5: Genetic Preprocessing
-
-Genetic preprocessing is conducted on imputed UKB genetic data. 
-
-#####Stage 1: Initial Filter
-A. Variant filtering to retrain.  
-2. Bi-allelic variants.  
-3. SNPs with imputed accuracies (i.e. INFO) > 0.60.  
-
-B. Individual filtering to retain individuals with:  
-1. European Ancestry.
-2. No Sex Aneuploidy.
-3. Genetic sex matching reported sex. 
-4. Inclusion in UKB Kinship estimation. 
-
-##### Stage 2: Combined Filtered Data
-
-bgen files are originally split by chromsome, we combined them into a single file to allow for QC with plink. 
-
-#### Stage 3: Plink QC
-
-
-```bash
-# Option 1: run the command locally on each chromosome
-for chrom in {1..22};
-do
-    echo $chrom
-    python3 ./scripts/05_ukb_genetic_pipe.py \
-             --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \
-             --chrom=${chrom} \
-             --info=0.06 \
-             --filter_bgen
-done
-    
-    
-# Option 2: Run each chromosome filtering in parallel using slurm
-slurm_dir=/gpfs/milgram/project/holmes/kma52/buckner_aging/slurm
-for chrom in {1..22};
-do
-    slurm_file=${slurm_dir}/snp_qc_filter_bgen_chr${chrom}.txt
-    slurm_out_file=${slurm_dir}/snp_qc_filter_bgen_chr${chrom}_out.txt
-    echo $slurm_file
-    # write singularity command to slurm submission file
-cat << EOF > ${slurm_file}
-#!/bin/bash
-#SBATCH --partition=short
-#SBATCH --output=${slurm_out_file}
-#SBATCH --nodes=1
-#SBATCH --ntasks=1 --cpus-per-task=10
-#SBATCH --job-name=$chrom
-#SBATCH --time=06:00:00
-
-singularity run simons_ukb_aging_pipeline \\
-python3 /gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/scripts/05_ukb_genetic_pipe.py \\
-    --config=/gpfs/milgram/project/holmes/kma52/ukbAgingPipeline/config.json \\
-    --chrom=${chrom} \\
-    --maf=0.01 \\
-    --hwe=1e-6 \\
-    --mind=0.02 \\
-    --geno=0.02 \\
-    --info=0.6 \\
-    --filter_bgen
-echo 'done'
-EOF
-    # submit job to cluster
-    sbatch < ${slurm_file}
-done
-    
-    
-```
 
 ---
 

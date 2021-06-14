@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import logging
 
-from utilities.utilities import make_symlink
+import utilities.utilities as utilities
 log = logging.getLogger('ukb')
 
 
