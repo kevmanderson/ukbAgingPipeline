@@ -10,12 +10,7 @@ import warnings
 
 log = logging.getLogger('ukb')
 
-def configLogging(args):
-    """Configures ``funpack`` logging.
-
-    :arg args: ``argparse.Namespace`` object containing parsed command line
-               arguments.
-    """
+def configLogging():
     class LogHandler(logging.StreamHandler):
         def emit(self, record):
             levelno = record.levelno

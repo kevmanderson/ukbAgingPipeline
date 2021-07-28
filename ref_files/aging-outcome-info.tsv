@@ -657,13 +657,13 @@ FieldID	TRAIT_OF_INTEREST	EXCLUDED	CAT_MULT_INDICATOR_FIELDS	CAT_SINGLE_TO_CAT_M
 6221							UK Biobank Assessment Centre > Physical measures > Anthropometry > Impedance measures	100009	Impedance of arm, manual entry (right)	Integer
 6222							UK Biobank Assessment Centre > Physical measures > Anthropometry > Impedance measures	100009	Impedance of arm, manual entry (left)	Integer
 6312		YES-CAT-SIN-MUL-VAL				6312	UK Biobank Assessment Centre > Cognitive function > Tower rearranging	503	Value entered	Categorical single
-6332			NO_NAN			6332	UK Biobank Assessment Centre > Cognitive function > Matrix pattern completion	501	Item selected for each puzzle	Categorical multiple
+6332		YES-SIMONS	NO_NAN			6332	UK Biobank Assessment Centre > Cognitive function > Matrix pattern completion	501	Item selected for each puzzle	Categorical multiple
 6333							UK Biobank Assessment Centre > Cognitive function > Matrix pattern completion	501	Duration spent answering each puzzle	Integer
 6348						1990	UK Biobank Assessment Centre > Cognitive function > Trail making	505	Duration to complete numeric path (trail #1)	Integer
 6349							UK Biobank Assessment Centre > Cognitive function > Trail making	505	Total errors traversing numeric path (trail #1)	Integer
 6350						1990	UK Biobank Assessment Centre > Cognitive function > Trail making	505	Duration to complete alphanumeric path (trail #2)	Integer
 6351							UK Biobank Assessment Centre > Cognitive function > Trail making	505	Total errors traversing alphanumeric path (trail #2)	Integer
-6362						500	UK Biobank Assessment Centre > Cognitive function > Symbol digit substitution	502	First code array presented	Categorical single
+6362		YES-ACE				500	UK Biobank Assessment Centre > Cognitive function > Symbol digit substitution	502	First code array presented	Categorical single
 6373							UK Biobank Assessment Centre > Cognitive function > Matrix pattern completion	501	Number of puzzles correctly solved	Integer
 6374							UK Biobank Assessment Centre > Cognitive function > Matrix pattern completion	501	Number of puzzles viewed	Integer
 6382							UK Biobank Assessment Centre > Cognitive function > Tower rearranging	503	Number of puzzles correct	Integer
@@ -1460,20 +1460,41 @@ FieldID	TRAIT_OF_INTEREST	EXCLUDED	CAT_MULT_INDICATOR_FIELDS	CAT_SINGLE_TO_CAT_M
 22507							Online follow-up > Work environment > Medical information	132	Age of stopping smoking	Integer
 22508						946	Online follow-up > Work environment > Medical information	132	Amount of tobacco currently smoked	Integer
 22599							Online follow-up > Work environment > Employment history	130	Number of jobs held	Integer
+22601			22599	YES		497	Online follow-up > Work environment > Employment history	130	Job coding	Categorical single
 22602							Online follow-up > Work environment > Employment history	130	Year job started	Integer
 22603						100698	Online follow-up > Work environment > Employment history	130	Year job ended	Integer
+22604			22599	YES		494	Online follow-up > Work environment > Employment history	130	Work hours - lumped category	Categorical single
 22605							Online follow-up > Work environment > Employment history	130	Work hours per week - exact value	Continuous
+22606			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace very noisy	Categorical single
+22607			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace very cold	Categorical single
+22608			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace very hot	Categorical single
+22609			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace very dusty	Categorical single
+22610			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace full of chemical or other fumes	Categorical single
+22611			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace had a lot of cigarette smoke from other people smoking	Categorical single
+22612			22599	YES		493	Online follow-up > Work environment > Employment history	130	Worked with materials containing asbestos	Categorical single
+22613			22599	YES		493	Online follow-up > Work environment > Employment history	130	Worked with paints, thinners or glues	Categorical single
+22614			22599	YES		493	Online follow-up > Work environment > Employment history	130	Worked with pesticides	Categorical single
+22615			22599	YES		493	Online follow-up > Work environment > Employment history	130	Workplace had a lot of diesel exhaust	Categorical single
+22616			22599	YES		7	Online follow-up > Work environment > Employment history	130	Breathing problems during period of job	Categorical single
+22617			22599	YES		2	Online follow-up > Work environment > Employment history	130	Job code - historical	Categorical single
+22618			22599	YES		7	Online follow-up > Work environment > Employment history	130	Breathing problems improved/stopped away from workplace or on holiday	Categorical single
+22619			22599	YES		7	Online follow-up > Work environment > Employment history	130	Breathing problems responsible for leaving job	Categorical single
+22620			22599	YES		7	Online follow-up > Work environment > Employment history	130	Job involved shift work	Categorical single
+22630			22599	YES		489	Online follow-up > Work environment > Employment history	130	Day shifts worked	Categorical single
 22631							Online follow-up > Work environment > Employment history	130	Period spent working day shifts	Continuous
+22640			22599	YES		489	Online follow-up > Work environment > Employment history	130	Mixture of day and night shifts worked	Categorical single
 22641						488	Online follow-up > Work environment > Employment history	130	Period spent working mix of day and night shifts	Continuous
 22642							Online follow-up > Work environment > Employment history	130	Usual length of each night shift during mixed shift periods	Integer
 22643							Online follow-up > Work environment > Employment history	130	Number of night shifts worked monthly during mixed shift periods	Integer
 22644						487	Online follow-up > Work environment > Employment history	130	Consecutive night shifts during mixed shift periods	Integer
 22645						487	Online follow-up > Work environment > Employment history	130	Rest days during mixed shift periods	Integer
+22650			22599	YES		489	Online follow-up > Work environment > Employment history	130	Night shifts worked	Categorical single
 22651						488	Online follow-up > Work environment > Employment history	130	Period spent working night shifts	Continuous
 22652							Online follow-up > Work environment > Employment history	130	Usual length of each night shift during night shift periods	Integer
 22653							Online follow-up > Work environment > Employment history	130	Number of night shifts worked monthly during night shift periods	Integer
 22654						487	Online follow-up > Work environment > Employment history	130	Consecutive night shifts during night shift periods	Integer
 22655						487	Online follow-up > Work environment > Employment history	130	Rest days during night shift periods	Integer
+22660			22599	YES		486	Online follow-up > Work environment > Employment history	130	Gap coding	Categorical single
 22661							Online follow-up > Work environment > Employment history	130	Number of gap periods	Integer
 22663							Online follow-up > Work environment > Employment history	130	Year gap started	Integer
 22664						100698	Online follow-up > Work environment > Employment history	130	Year gap ended	Integer
@@ -1725,8 +1746,8 @@ FieldID	TRAIT_OF_INTEREST	EXCLUDED	CAT_MULT_INDICATOR_FIELDS	CAT_SINGLE_TO_CAT_M
 23317							UK Biobank Assessment Centre > Imaging > DXA assessment > Bone size, mineral and density by DXA	125	Arms combined bone area	Continuous
 23318							UK Biobank Assessment Centre > Imaging > DXA assessment > Bone size, mineral and density by DXA	125	Legs combined bone area	Continuous
 23320							UK Biobank Assessment Centre > Imaging > DXA assessment > Bone size, mineral and density by DXA	125	Leg BMC (bone mineral content) (left)	Continuous
-23321							UK Biobank Assessment Centre > Cognitive function > Symbol digit substitution	502	Values wanted	Integer
-23322							UK Biobank Assessment Centre > Cognitive function > Symbol digit substitution	502	Values entered	Integer
+23321		YES-ACE					UK Biobank Assessment Centre > Cognitive function > Symbol digit substitution	502	Values wanted	Integer
+23322		YES-ACE					UK Biobank Assessment Centre > Cognitive function > Symbol digit substitution	502	Values entered	Integer
 23323						6361	UK Biobank Assessment Centre > Cognitive function > Symbol digit substitution	502	Number of symbol digit matches attempted	Integer
 23324							UK Biobank Assessment Centre > Cognitive function > Symbol digit substitution	502	Number of symbol digit matches made correctly	Integer
 24003							Additional exposures > Local environment > Residential air pollution	114	Nitrogen dioxide air pollution; 2010	Continuous
